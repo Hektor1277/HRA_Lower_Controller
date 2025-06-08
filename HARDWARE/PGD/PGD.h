@@ -10,7 +10,7 @@
 #define M_ROWS 6
 #define M_COLS 12
 #define MAX_ITER 200
-#define Res_TOL 1e-3 // 残差阈值
+#define Res_TOL 1e-2 // 残差阈值
 #define PRINT_INTERVAL 100
 #define x_max 0.21238888 // 解向量元素上界约束
 

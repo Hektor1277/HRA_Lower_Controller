@@ -8241,12 +8241,12 @@ I (..\SMC\Silde_Mode_Controller.h)(0x67408AB8)
 I (..\HARDWARE\TIMER\timer.h)(0x674049C4)
 I (..\SYSTEM\usart\usart.h)(0x6783D916)
 I (E:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599ECD2E)
-I (..\HARDWARE\PGD\PGD.h)(0x6784F5D9)
+I (..\HARDWARE\PGD\PGD.h)(0x68454B8E)
 I (E:\Keil_v5\ARM\ARMCC\include\math.h)(0x599ECD2E)
 I (E:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x599ECD2C)
 I (E:\Keil_v5\ARM\ARMCC\include\float.h)(0x599ECD2C)
 F (..\HARDWARE\PGD\PGD.c)(0x6785143A)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\DMA -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="539" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\pgd.o --omf_browse ..\obj\pgd.crf --depend ..\obj\pgd.d)
-I (..\HARDWARE\PGD\PGD.h)(0x6784F5D9)
+I (..\HARDWARE\PGD\PGD.h)(0x68454B8E)
 I (E:\Keil_v5\ARM\ARMCC\include\math.h)(0x599ECD2E)
 I (E:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599ECD2C)
 I (E:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x599ECD2C)
