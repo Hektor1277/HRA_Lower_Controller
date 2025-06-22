@@ -12,11 +12,13 @@ extern ControllerOutput ctrl_output;
 extern FanSpeed Fan_desire_Speed;
 extern FanControl Fan_Control_duty_rate;
 
+volatile uint8_t dbg_flag = 0; // 用于控制调试输出的标志位
+
 // 定时器自动重装值arr和时钟预分频数psc
-uint16_t c_arr = 999; // 控制周期时长为：Tout=((c_arr+1)*(c_psc+1))/Ft =10ms. Ft=定时器工作频率, 单位:Mhz
-uint16_t c_psc = 2399;
-uint16_t PWM_arr = 959; // PWM输出频率为：Ft=((TIM_arr+1)*(TIM_psc+1))/Tout 25kHz.
-uint16_t PWM_psc = 9;
+uint16_t CTRL_ARR = ctrl_arr; // 运行模式控制周期时长为：Tout=((CTRL_ARR+1)*(CTRL_PSC+1))/Ft =10ms. Ft=定时器工作频率, 单位:Mhz; 调试模式为1000ms.
+uint16_t CTRL_PSC = ctrl_psc;
+uint16_t PWM_ARR = 959; // PWM输出频率为：Ft=((TIM_arr+1)*(TIM_psc+1))/Tout 25kHz.
+uint16_t PWM_PSC = 9;
 
 TIM_HandleTypeDef TIM6_Handler; // 基本定时器6句柄，用作控制周期定时器
 
@@ -35,12 +37,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == (&TIM6_Handler))
     {
-        // // 调用当前周期控制输入结构体，输入位置和姿态控制器计算控制输出
-        // Position_Controller(&ctrl_input, &ctrl_output);
-        // Attitude_Controller(&ctrl_input, &ctrl_output);
+        dbg_flag = 1; // 一行即可
+        // 定时器中断触发调用控制器/风扇计算
+        // 调用当前周期控制输入结构体，输入位置和姿态控制器计算控制输出
+        Position_Controller(&ctrl_input, &ctrl_output);
+        Attitude_Controller(&ctrl_input, &ctrl_output);
 
-        // // 调用底层风扇控制函数，根据控制输出计算风扇转速并输出相应PWM信号
-        // Fan_Rotation_Control(&ctrl_output, &Fan_desire_Speed, &Fan_Control_duty_rate);
+        // 调用底层风扇控制函数，根据控制输出计算风扇转速并输出相应PWM信号
+        Fan_Rotation_Control(&ctrl_output, &Fan_desire_Speed, &Fan_Control_duty_rate);
     }
 }
 
@@ -52,9 +56,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void TIM6_Init(void)
 {
     TIM6_Handler.Instance = TIM6;                             // 基本定时器6
-    TIM6_Handler.Init.Prescaler = c_psc;                      // 分频
+    TIM6_Handler.Init.Prescaler = CTRL_PSC;                   // 分频
     TIM6_Handler.Init.CounterMode = TIM_COUNTERMODE_UP;       // 向上计数器
-    TIM6_Handler.Init.Period = c_arr;                         // 自动装载值
+    TIM6_Handler.Init.Period = CTRL_ARR;                      // 自动装载值
     TIM6_Handler.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1; // 时钟分频因子
 
     HAL_TIM_Base_Init(&TIM6_Handler);
@@ -83,15 +87,15 @@ void TIM6_DAC_IRQHandler(void)
 // PWM输出定时器 PWM 部分初始化函数
 void TIMx_PWM_Init(TIM_HandleTypeDef *htim, TIM_OC_InitTypeDef *sConfigOC)
 {
-    htim->Init.Prescaler = PWM_psc;                    // 定时器分频
+    htim->Init.Prescaler = PWM_PSC;                    // 定时器分频
     htim->Init.CounterMode = TIM_COUNTERMODE_UP;       // 向上计数模式
-    htim->Init.Period = PWM_arr;                       // 自动重装载值
+    htim->Init.Period = PWM_ARR;                       // 自动重装载值
     htim->Init.ClockDivision = TIM_CLOCKDIVISION_DIV1; // 时钟分频因子
 
     HAL_TIM_PWM_Init(htim); // 初始化PWM
 
     sConfigOC->OCMode = TIM_OCMODE_PWM1;               // 模式选择PWM1
-    sConfigOC->Pulse = (uint32_t)round(PWM_arr * 0.1); // 设置初始比较值，四舍五入为 10%
+    sConfigOC->Pulse = (uint32_t)round(PWM_ARR * 0.1); // 设置初始比较值，四舍五入为 10%
     sConfigOC->OCPolarity = TIM_OCPOLARITY_HIGH;       // 输出比较极性为高
 }
 

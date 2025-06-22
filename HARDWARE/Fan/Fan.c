@@ -63,13 +63,13 @@ void Fan_Rotation_Control(ControllerOutput *output, FanSpeed *fan_speed, FanCont
 {
     // 计算风扇转速
     Calculate_Fan_Speed(output, fan_speed);
-    USART_SendFormatted("Calculated Fan Speed.\r\n");
+    USART_SendFormatted(&TERM_UART, "Calculated Fan Speed.\r\n");
     // 计算各风扇PWM信号占空比
     Calculate_Duty_Rate(fan_speed, duty_rate);
-    USART_SendFormatted("Calculated Duty Rate.\r\n");
+    USART_SendFormatted(&TERM_UART, "Calculated Duty Rate.\r\n");
     // 设置各风扇对应通道PWM输出占空比
     Set_Fan_PWM(duty_rate);
-    USART_SendFormatted("Set Fan PWM.\r\n");
+    USART_SendFormatted(&TERM_UART, "Set Fan PWM.\r\n");
 }
 
 // 定义计算风扇转速的函数
@@ -87,8 +87,8 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
     int F_status = 0;              // 存储 F 是否在列空间中的状态
     int accept_solution = 0;       // 存储是否接受解的状态
 
-    USART_SendFormatted("PGD input Thrust: [%.5f, %.5f, %.5f]\r\n", output->thrust[0], output->thrust[1], output->thrust[2]);
-    USART_SendFormatted("PGD input Torque: [%.5f, %.5f, %.5f]\r\n", output->torque[0], output->torque[1], output->torque[2]);
+    USART_SendFormatted(&TERM_UART, "PGD input Thrust: [%.5f, %.5f, %.5f]\r\n", output->thrust[0], output->thrust[1], output->thrust[2]);
+    USART_SendFormatted(&TERM_UART, "PGD input Torque: [%.5f, %.5f, %.5f]\r\n", output->torque[0], output->torque[1], output->torque[2]);
 
     for (int i = 0; i < 3; i++) // 从控制器输出合力中提取 F 向量
     {
@@ -96,14 +96,14 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
         F_origin[i + 3] = output->torque[i]; // 单位N·m,取值范围[-0.06,0.06]
     }
 
-    USART_SendFormatted("PGD input F_norm:\r\n[");
+    USART_SendFormatted(&TERM_UART, "PGD input F_norm:\r\n[");
 
     for (int i = 0; i < 6; i++) // 归一化 F 向量
     {
         F_norm[i] = F_origin[i] / (2 * FMAX); // 单位N,取值范围[-0.4,0.4] / (2 * FMAX) → [-1, 1]; 单位N·m,取值范围[-0.06,0.06] / (2 * FMAX) → [-0.15, 0.15]
-        USART_SendFormatted(" %.3f ", F_norm[i]);
+        USART_SendFormatted(&TERM_UART, " %.3f ", F_norm[i]);
     }
-    USART_SendFormatted("]\r\n");
+    USART_SendFormatted(&TERM_UART, "]\r\n");
 
     project_target(F_norm, F_proj); // 将归一化后的 F 向量投影至控制效率矩阵列空间
 
@@ -113,12 +113,11 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
     F_status = is_in_column_space(F_norm, F_proj);
 
     // Step 3: 使用投影梯度下降法求解
-    USART_SendFormatted("\r\nRunning Projected Gradient Descent...\r\n");
+    USART_SendFormatted(&TERM_UART, "\r\nRunning Projected Gradient Descent...\r\n");
     projected_gradient_descent(F_proj, PGD_solution);
 
-
     // Step 4: 计算解的残差, 并根据残差判断是否接受解
-    USART_SendFormatted("\r\nVerifying PGD Solution...\r\n");
+    USART_SendFormatted(&TERM_UART, "\r\nVerifying PGD Solution...\r\n");
     compute_residual(F_norm, PGD_solution, F_status, &accept_solution);
 
     if (accept_solution) // 通过解的残差判断是否接受解, 并打印最终解向量 x

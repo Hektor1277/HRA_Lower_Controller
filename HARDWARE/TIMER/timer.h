@@ -1,15 +1,27 @@
 #ifndef _TIMER_H
 #define _TIMER_H
 #include "sys.h"
+#include "usart.h"
 #include "Silde_Mode_Controller.h"
+
+#define CTRL_FRE_FLAG OPERATING_MODE // 控制器工作频率标志位，单口调试模式下为0，双口运行模式下为1
+#if CTRL_FRE_FLAG                    // 双口运行模式
+#define ctrl_arr 999                 // 计数器自动重装载值
+#define ctrl_psc 2399                // 分频
+#else                                // 单口调试模式
+#define ctrl_arr 9999                // 计数器自动重装载值(固定分频，调整重装载值即可实现不同频率变更。1Hz对应9999；0.2Hz对应49999；0.1Hz对应99999)
+#define ctrl_psc 2399                // 分频
+#endif
+
+extern volatile uint8_t dbg_flag; // 用于控制调试输出的标志位
 
 extern TIM_HandleTypeDef TIM3_Handler; // 定时器句柄
 
 // 定时器自动重装值arr和时钟预分频数psc
-extern uint16_t c_arr; // 控制周期时长为：Tout=((c_arr+1)*(c_psc+1))/Ft =10ms. Ft=定时器工作频率, 单位:Mhz
-extern uint16_t c_psc;
-extern uint16_t PWM_arr; // PWM输出频率为：Ft=((TIM_arr+1)*(TIM_psc+1))/Tout 25kHz.
-extern uint16_t PWM_psc;
+extern uint16_t CTRL_ARR; // 控制周期时长为：Tout=((CTRL_ARR+1)*(CTRL_PSC+1))/Ft =10ms. Ft=定时器工作频率, 单位:Mhz
+extern uint16_t CTRL_PSC;
+extern uint16_t PWM_ARR; // PWM输出频率为：Ft=((PWM_ARR+1)*(PWM_PSC+1))/Tout 25kHz.
+extern uint16_t PWM_PSC;
 
 // 函数声明
 void TIM6_Init(void); // 定时器3初始化函数

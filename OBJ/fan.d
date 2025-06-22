@@ -97,7 +97,7 @@
 ..\obj\fan.o: ..\HARDWARE\TIMER\timer.h
 ..\obj\fan.o: ..\SYSTEM\usart\usart.h
 ..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
-..\obj\fan.o: ..\HARDWARE\PGD\PGD.h
 ..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+..\obj\fan.o: ..\HARDWARE\PGD\PGD.h
 ..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 ..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h

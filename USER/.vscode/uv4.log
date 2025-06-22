@@ -1,4 +1,8 @@
-Load "..\\OBJ\\SMC.axf" 
-Internal DLL Error
-Error: Flash Download failed  -  Target DLL has been cancelled
-Flash Load finished at 16:41:53
+*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'E:\Keil_v5\ARM\ARMCC\Bin'
+Build target 'SMC'
+compiling PGD.c...
+linking...
+Program Size: Code=30184 RO-data=3880 RW-data=420 ZI-data=2924  
+FromELF: creating hex file...
+"..\OBJ\SMC.axf" - 0 Error(s), 0 Warning(s).
+Build Time Elapsed:  00:00:06

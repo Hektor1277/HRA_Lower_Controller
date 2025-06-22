@@ -94,9 +94,10 @@
 ..\obj\main.o: ..\CORE\core_cm7.h
 ..\obj\main.o: main.h
 ..\obj\main.o: ..\HARDWARE\TIMER\timer.h
-..\obj\main.o: ..\SMC\Silde_Mode_Controller.h
 ..\obj\main.o: ..\SYSTEM\usart\usart.h
+..\obj\main.o: ..\SMC\Silde_Mode_Controller.h
 ..\obj\main.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+..\obj\main.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\main.o: ..\SYSTEM\delay\delay.h
 ..\obj\main.o: ..\HARDWARE\Fan\Fan.h
 ..\obj\main.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

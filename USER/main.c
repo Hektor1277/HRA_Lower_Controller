@@ -7,9 +7,16 @@
 #include "Fan.h"
 #include <string.h>
 
-#define ENABLE_USART_TEST 1
+#define ENABLE_USART 1
 #define ENABLE_TIMER 1
 #define ENABLE_CONTROLLER 1
+
+static volatile uint32_t report_tick = 0;
+#if OPERATING_MODE
+const uint32_t REPORT_INTERVAL = 1000; // 10 s
+#else
+const uint32_t REPORT_INTERVAL = 5; // 每5帧
+#endif
 
 // 调试用
 float duty_cycle_1[12] = {50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0};
@@ -26,15 +33,30 @@ int main(void)
     Stm32_Clock_Init(192, 5, 2, 2); // 设置时钟
     delay_init(480);                // 延时初始化
 
-#if ENABLE_USART_TEST
+#if ENABLE_USART
     uart_init(115200); // 串口初始化
     // u16 times = 0;     // 计时
+
+#if !OPERATING_MODE
+    USART_SendFormatted(&TERM_UART,
+                        "\r\n[DEBUG-MODE] 单口调试模式已启用: UART1 收+发\r\n");
+#else
+    USART_SendFormatted(&TERM_UART,
+                        "\r\n[OPERATING] 双口运行模式已启用: UART2 收, UART1 调试输出\r\n");
+#endif
 #endif
 
 #if ENABLE_TIMER
     TIM6_Init(); // 初始化TIM6，10ms周期，适当的预分频
     PWM_Init();  // PWM初始化
     Set_Fan_PWM(&Fan_Control_duty_rate);
+#if !OPERATING_MODE
+    USART_SendFormatted(&TERM_UART,
+                        "\r\n[DEBUG-MODE] 低频调试模式已启用: 以1Hz频率执行控制响应(或其他频率, 具体请查看定时器头文件)\r\n");
+#else
+    USART_SendFormatted(&TERM_UART,
+                        "\r\n[OPERATING] 高频运行模式已启用: 以100Hz频率执行控制响应(或其他频率, 具体请查看定时器头文件)\r\n");
+#endif
 #endif
 
 #if ENABLE_CONTROLLER
@@ -45,6 +67,9 @@ int main(void)
     extern FanSpeed Fan_desire_Speed;
     extern FanControl Fan_Control_duty_rate;
 
+    USART_SendFormatted(&TERM_UART,
+                        "\r\n控制器初始化\r\n");
+
     // 初始化参数并初始化控制器
     InitConstantsToFloat();                    // 初始化常量为浮点数
     InitController(&ctrl_input, &ctrl_output); // 初始化控制器
@@ -53,13 +78,16 @@ int main(void)
     // 主循环
     while (1)
     {
-#if ENABLE_USART_TEST
-        // 如果 UART1 的状态不是 READY 或没有处于接收中断模式，重新开启接收中断
-        if (HAL_UART_GetState(&UART1_Handler) == HAL_UART_STATE_READY && !(USART_RX_STA & 0x8000))
+#if ENABLE_USART
+        if (dbg_flag) // 触发定时器中断
         {
-            HAL_UART_Receive_IT(&UART1_Handler, (u8 *)aRxBuffer, RXBUFFERSIZE);
+            dbg_flag = 0; // 重置标志位
+            if (++report_tick >= REPORT_INTERVAL)
+            {
+                report_tick = 0;
+                send_info(&TERM_UART); // 统一在主循环打印调试信息
+            }
         }
-
         // 其他非关键性任务可以在这里执行，例如监控状态或处理其他事件
         // times++;
         // if (times % 200 == 0)
