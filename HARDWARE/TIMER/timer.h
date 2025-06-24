@@ -4,14 +4,8 @@
 #include "usart.h"
 #include "Silde_Mode_Controller.h"
 
-#define CTRL_FRE_FLAG OPERATING_MODE // 控制器工作频率标志位，单口调试模式下为0，双口运行模式下为1
-#if CTRL_FRE_FLAG                    // 双口运行模式
-#define ctrl_arr 999                 // 计数器自动重装载值
-#define ctrl_psc 2399                // 分频
-#else                                // 单口调试模式
-#define ctrl_arr 9999                // 计数器自动重装载值(固定分频，调整重装载值即可实现不同频率变更。1Hz对应9999；0.2Hz对应49999；0.1Hz对应99999)
-#define ctrl_psc 2399                // 分频
-#endif
+#define ctrl_arr 999  // 计数器自动重装载值
+#define ctrl_psc 2399 // 分频
 
 extern volatile uint8_t dbg_flag; // 用于控制调试输出的标志位
 

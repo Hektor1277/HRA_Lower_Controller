@@ -12,11 +12,7 @@
 #define ENABLE_CONTROLLER 1
 
 static volatile uint32_t report_tick = 0;
-#if OPERATING_MODE
-const uint32_t REPORT_INTERVAL = 1000; // 10 s
-#else
-const uint32_t REPORT_INTERVAL = 5; // 每5帧
-#endif
+const uint32_t REPORT_INTERVAL = 1000; // 100Hz下为10s
 
 // 调试用
 float duty_cycle_1[12] = {50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0};
@@ -38,25 +34,21 @@ int main(void)
     // u16 times = 0;     // 计时
 
 #if !OPERATING_MODE
-    USART_SendFormatted(&TERM_UART,
-                        "\r\n[DEBUG-MODE] 单口调试模式已启用: UART1 收+发\r\n");
+    USART_SendFormatted(&TERM_UART, "\r\n[DEBUG-MODE] 调试模式已启用: UART1 收+发\r\n");
 #else
-    USART_SendFormatted(&TERM_UART,
-                        "\r\n[OPERATING] 双口运行模式已启用: UART2 收, UART1 调试输出\r\n");
+    USART_SendFormatted(&TERM_UART, "\r\n[OPERATING] 运行模式已启用: UART2 收, UART1 调试输出\r\n");
 #endif
 #endif
 
 #if ENABLE_TIMER
-    TIM6_Init(); // 初始化TIM6，10ms周期，适当的预分频
-    PWM_Init();  // PWM初始化
-    Set_Fan_PWM(&Fan_Control_duty_rate);
 #if !OPERATING_MODE
-    USART_SendFormatted(&TERM_UART,
-                        "\r\n[DEBUG-MODE] 低频调试模式已启用: 以1Hz频率执行控制响应(或其他频率, 具体请查看定时器头文件)\r\n");
+    USART_SendFormatted(&TERM_UART, "\r\n[DEBUG-MODE] 调试模式已启用: 以串口接收中断响应调试数据帧, 非固定频率\r\n");
 #else
-    USART_SendFormatted(&TERM_UART,
-                        "\r\n[OPERATING] 高频运行模式已启用: 以100Hz频率执行控制响应(或其他频率, 具体请查看定时器头文件)\r\n");
+    TIM6_Init(); // 初始化TIM6
+    USART_SendFormatted(&TERM_UART, "\r\n[OPERATING] 运行模式已启用: 以100Hz频率执行控制响应(或其他频率, 具体请查看定时器头文件)\r\n");
 #endif
+    PWM_Init(); // PWM初始化
+    Set_Fan_PWM(&Fan_Control_duty_rate);
 #endif
 
 #if ENABLE_CONTROLLER
@@ -67,8 +59,7 @@ int main(void)
     extern FanSpeed Fan_desire_Speed;
     extern FanControl Fan_Control_duty_rate;
 
-    USART_SendFormatted(&TERM_UART,
-                        "\r\n控制器初始化\r\n");
+    USART_SendFormatted(&TERM_UART, "\r\n控制器初始化\r\n");
 
     // 初始化参数并初始化控制器
     InitConstantsToFloat();                    // 初始化常量为浮点数
@@ -79,15 +70,17 @@ int main(void)
     while (1)
     {
 #if ENABLE_USART
+#if OPERATING_MODE
         if (dbg_flag) // 触发定时器中断
         {
-            dbg_flag = 0; // 重置标志位
-            if (++report_tick >= REPORT_INTERVAL)
+            dbg_flag = 0;                         // 重置标志位
+            if (++report_tick >= REPORT_INTERVAL) // 每1000次中断发送一次调试信息
             {
                 report_tick = 0;
-                send_info(&TERM_UART); // 统一在主循环打印调试信息
+                send_info(&TERM_UART); // 在主循环打印调试信息
             }
         }
+#endif
         // 其他非关键性任务可以在这里执行，例如监控状态或处理其他事件
         // times++;
         // if (times % 200 == 0)
@@ -95,10 +88,6 @@ int main(void)
         //     USART_SendFormatted("Waiting for data...\r\n"); // 定期发送调试信息，以确认程序运行正常
         // }
         // delay_ms(10);
-#endif
-
-#if ENABLE_CONTROLLER
-
 #endif
     }
 }

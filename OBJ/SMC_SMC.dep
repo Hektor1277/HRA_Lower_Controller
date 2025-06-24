@@ -1,6 +1,6 @@
 Dependencies for Project 'SMC', Target 'SMC': (DO NOT MODIFY !)
 CompilerVersion: 5060750::V5.06 update 6 (build 750)::.\ARMCC
-F (.\main.c)(0x6857F2CF)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\DMA -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="539" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\main.o --omf_browse ..\obj\main.crf --depend ..\obj\main.d)
+F (.\main.c)(0x685A0CEB)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\DMA -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="539" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\main.o --omf_browse ..\obj\main.crf --depend ..\obj\main.d)
 I (..\SYSTEM\sys\sys.h)(0x6721DE56)
 I (..\USER\stm32h7xx.h)(0x5B3BDE38)
 I (..\USER\stm32h743xx.h)(0x5B3BDE38)
@@ -93,7 +93,7 @@ I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x5B3BDEFC)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x5B3BDED6)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x5B3BDEB8)
 I (main.h)(0x59376D78)
-I (..\HARDWARE\TIMER\timer.h)(0x6857F9AD)
+I (..\HARDWARE\TIMER\timer.h)(0x685A0A5C)
 I (..\SYSTEM\usart\usart.h)(0x6857F8ED)
 I (..\SMC\Silde_Mode_Controller.h)(0x67408AB8)
 I (E:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599ECD2E)
@@ -663,7 +663,7 @@ I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd.h)(0x5B3BDED6)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x5B3BDEFC)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x5B3BDED6)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x5B3BDEB8)
-F (..\SYSTEM\usart\usart.c)(0x6858122B)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\DMA -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="539" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\usart.o --omf_browse ..\obj\usart.crf --depend ..\obj\usart.d)
+F (..\SYSTEM\usart\usart.c)(0x685A192C)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\DMA -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="539" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\usart.o --omf_browse ..\obj\usart.crf --depend ..\obj\usart.d)
 I (..\SMC\Silde_Mode_Controller.h)(0x67408AB8)
 I (..\SYSTEM\sys\sys.h)(0x6721DE56)
 I (..\USER\stm32h7xx.h)(0x5B3BDE38)
@@ -7954,8 +7954,8 @@ I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd.h)(0x5B3BDED6)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x5B3BDEFC)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x5B3BDED6)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x5B3BDEB8)
-F (..\HARDWARE\TIMER\timer.c)(0x685776B3)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\DMA -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="539" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\timer.o --omf_browse ..\obj\timer.crf --depend ..\obj\timer.d)
-I (..\HARDWARE\TIMER\timer.h)(0x6857F9AD)
+F (..\HARDWARE\TIMER\timer.c)(0x685A12D2)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\DMA -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="539" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\timer.o --omf_browse ..\obj\timer.crf --depend ..\obj\timer.d)
+I (..\HARDWARE\TIMER\timer.h)(0x685A0A5C)
 I (..\SYSTEM\sys\sys.h)(0x6721DE56)
 I (..\USER\stm32h7xx.h)(0x5B3BDE38)
 I (..\USER\stm32h743xx.h)(0x5B3BDE38)
@@ -8239,7 +8239,7 @@ I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x5B3BDEFC)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x5B3BDED6)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x5B3BDEB8)
 I (..\SMC\Silde_Mode_Controller.h)(0x67408AB8)
-I (..\HARDWARE\TIMER\timer.h)(0x6857F9AD)
+I (..\HARDWARE\TIMER\timer.h)(0x685A0A5C)
 I (..\SYSTEM\usart\usart.h)(0x6857F8ED)
 I (E:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599ECD2E)
 I (E:\Keil_v5\ARM\ARMCC\include\math.h)(0x599ECD2E)

@@ -121,7 +121,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 		HAL_GPIO_Init(GPIOA, &GPIO_Initure); // 初始化PA10
 
 		HAL_NVIC_EnableIRQ(USART1_IRQn);		 // 使能USART1中断通道
-		HAL_NVIC_SetPriority(USART1_IRQn, 1, 3); // 抢占优先级1，子优先级3
+		HAL_NVIC_SetPriority(USART1_IRQn, 0, 1); // 抢占优先级0，子优先级1
 	}
 	else if (huart->Instance == USART2) // 如果是串口2，进行串口2 MSP初始化
 	{
@@ -139,7 +139,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 		HAL_GPIO_Init(GPIOA, &GPIO_Initure);
 
 		HAL_NVIC_EnableIRQ(USART2_IRQn);		 // 使能USART2中断通道
-		HAL_NVIC_SetPriority(USART2_IRQn, 1, 3); // 抢占优先级1，子优先级3
+		HAL_NVIC_SetPriority(USART2_IRQn, 0, 1); // 抢占优先级0，子优先级1
 	}
 }
 
@@ -166,7 +166,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 					// 解析数据
 					parse_data(&ctrl_input, &prev_ctrl_input); // 调用数据解析函数，处理帧尾前的数据
-					data_rx_sta = 0;						   // 重置接收状态，以便下一次接收
+
+#if !OPERATING_MODE // 调试模式
+					// 调用当前周期控制输入结构体，输入位置和姿态控制器计算控制输出
+					Position_Controller(&ctrl_input, &ctrl_output);
+					Attitude_Controller(&ctrl_input, &ctrl_output);
+					// 调用底层风扇控制函数，根据控制输出计算风扇转速并输出相应PWM信号
+					Fan_Rotation_Control(&ctrl_output, &Fan_desire_Speed, &Fan_Control_duty_rate);
+					// 发送调试信息到TERM_UART
+					send_info(&TERM_UART);
+#endif
+					data_rx_sta = 0; // 重置接收状态，以便下一次接收
 				}
 			}
 			else // 还没有收到帧尾的第一个字节
@@ -313,23 +323,13 @@ void parse_data(ControllerInput *ctrl_input, ControllerInput *prev_ctrl_input)
 	/* ① 计算 inter-frame latency (ms) */
 	float latency_ms = 0.f;
 	if (prev_unix_ns == 0)
-		latency_ms = -1.f; // 约定 -1 显示 N/A
+		latency_ms = 0.f; // 首帧无延迟
 	if (prev_unix_ns)
 		latency_ms = (unix_time_ns - prev_unix_ns) * 1e-6f;
 
-	/* ② 计算丢包 gap 并累计 */
+	// 声明丢包 gap
 	uint32_t gap = 0;
-	if (prev_seq_id) /* first frame = 0 */
-	{
-		gap = sequence_id - prev_seq_id - 1U; /* 2^32 wrap-safe */
-		lost_pkt_count += gap;
-	}
 
-	/* 写入全局调试量 —— 供 send_info() 使用 */
-	g_frame_seq_id = sequence_id;
-	g_frame_time_ns = unix_time_ns;
-	g_frame_latency = latency_ms;
-	g_seq_gap = gap;
 	/* 这里若 MCU 不需要，可忽略或仅用于 log/监控 */
 
 	/******** 5. 解析 72 B payload — 从偏移 14 开始 ********/
@@ -398,10 +398,23 @@ void parse_data(ControllerInput *ctrl_input, ControllerInput *prev_ctrl_input)
 		}
 		else /* 正常帧——同步 prev_xxx */
 		{
+			/* 只有在正常帧里做 gap 统计 */
+			if (prev_seq_id) /* first frame = 0 */
+			{
+				gap = sequence_id - prev_seq_id - 1U; /* 2^32 wrap-safe */
+				lost_pkt_count += gap;
+			}
+
 			*prev_ctrl_input = *ctrl_input;
 			prev_seq_id = sequence_id;
 			prev_unix_ns = unix_time_ns;
 		}
+
+		/* 写入全局调试量 —— 供 send_info() 使用 */
+		g_frame_seq_id = sequence_id;
+		g_frame_time_ns = unix_time_ns;
+		g_frame_latency = latency_ms;
+		g_seq_gap = gap;
 	}
 }
 
@@ -460,14 +473,14 @@ void send_info(UART_HandleTypeDef *huart)
 						ctrl_input.angular_velocity[0], ctrl_input.angular_velocity[1], ctrl_input.angular_velocity[2],
 						ctrl_input.angular_acceleration[0], ctrl_input.angular_acceleration[1], ctrl_input.angular_acceleration[2]);
 
-	// 通过串口1打印控制器求解输出----------------------------------------------------------------
+	// 通过TERM_UART打印控制器求解输出----------------------------------------------------------------
 	USART_SendFormatted(huart, "\r\n=============== Control Force/Torque ===============\r\n");
 	USART_SendFormatted(huart, "Thrust: [%.3f, %.3f, %.3f]\r\n", ctrl_output.thrust[0], ctrl_output.thrust[1], ctrl_output.thrust[2]);
 	USART_SendFormatted(huart, "Torque: [%.3f, %.3f, %.3f]\r\n", ctrl_output.torque[0], ctrl_output.torque[1], ctrl_output.torque[2]);
 	USART_SendFormatted(huart, "\r\n=============== Control Force/Torque ===============\r\n");
 	//------------------------------------------------------------------------------------------
 
-	// 通过串口1打印风扇控制信息------------------------------------------------------------------
+	// 通过TERM_UART打印风扇控制信息------------------------------------------------------------------
 	USART_SendFormatted(huart, "\r\n=============== Calculated Fan Speed ===============\r\n");
 	USART_SendFormatted(huart, "Fan duty rate in module 1(LT): LX+: %.3f, FY+: %.3f, LZ+: %.3f\r\n", Fan_Control_duty_rate.control_LX_p, Fan_Control_duty_rate.control_FY_p, Fan_Control_duty_rate.control_LZ_p);
 	USART_SendFormatted(huart, "Fan duty rate in module 2(RT): RX-: %.3f, AY-: %.3f, RZ+: %.3f\r\n", Fan_Control_duty_rate.control_RX_n, Fan_Control_duty_rate.control_AY_n, Fan_Control_duty_rate.control_RZ_p);
