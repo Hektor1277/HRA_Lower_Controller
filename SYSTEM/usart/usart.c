@@ -260,7 +260,7 @@ void USART2_IRQHandler(void)
 
 void parse_data(ControllerInput *ctrl_input, ControllerInput *prev_ctrl_input)
 {
-	/******** 0. 取得有效长度＝data_rx_sta & 0x3FFF ********/
+	// 0. 取得有效长度＝data_rx_sta & 0x3FFF
 	u16 buf_len = (data_rx_sta & 0x3FFF);		   // 已收字节数(不含尾)
 	u16 FRAME_LEN_NO_FOOTER = TOTAL_FRAME_LEN - 2; // 90-2＝88
 
@@ -270,7 +270,7 @@ void parse_data(ControllerInput *ctrl_input, ControllerInput *prev_ctrl_input)
 		return;
 	}
 
-	/******** 1. 在缓存里寻找帧头 AA BB（可能存在前置噪声字节） ********/
+	// 1. 在缓存里寻找帧头 AA BB（可能存在前置噪声字节）
 	uint8_t *frame = NULL;
 	for (int i = 0; i <= buf_len - FRAME_LEN_NO_FOOTER; ++i)
 	{
@@ -286,14 +286,14 @@ void parse_data(ControllerInput *ctrl_input, ControllerInput *prev_ctrl_input)
 		return;
 	}
 
-	/******** 2. 检查数据帧完整 88 B ********/
+	// 2. 检查数据帧完整 88 B
 	if ((frame + FRAME_LEN_NO_FOOTER) > (data_rx_buf + buf_len))
 	{
 		frame_error_count++;
 		return; // 缓冲区末端截断
 	}
 
-	/* 3. CRC16(累加和) 校验 — 范围: byte[2..85] 共 84 B */
+	// 3. CRC16(累加和) 校验 — 范围: byte[2..85] 共 84 B
 	{
 		/* ① 直接把 84 B 看成 42 个 16-bit 字，大幅减循环次数
 		 * ② __REV16() 把大端字节顺序翻转成小端，自带一条 rev16 指令 */
@@ -308,7 +308,7 @@ void parse_data(ControllerInput *ctrl_input, ControllerInput *prev_ctrl_input)
 		}
 	}
 
-	/******** 4. 解析 sequence_id 与 unix_time_ns（可选保存/调试） ********/
+	// 4. 解析 sequence_id 与 unix_time_ns（可选保存/调试）
 	uint32_t sequence_id = (frame[2] << 24) |
 						   (frame[3] << 16) |
 						   (frame[4] << 8) |
@@ -320,7 +320,11 @@ void parse_data(ControllerInput *ctrl_input, ControllerInput *prev_ctrl_input)
 		unix_time_ns = (unix_time_ns << 8) | frame[6 + k];
 	}
 
-	/* ① 计算 inter-frame latency (ms) */
+	// 保存全局调试量
+	g_frame_seq_id = sequence_id;
+	g_frame_time_ns = unix_time_ns;
+
+	// ① 计算 inter-frame latency (ms)
 	float latency_ms = 0.f;
 	if (prev_unix_ns == 0)
 		latency_ms = 0.f; // 首帧无延迟
@@ -411,8 +415,6 @@ void parse_data(ControllerInput *ctrl_input, ControllerInput *prev_ctrl_input)
 		}
 
 		/* 写入全局调试量 —— 供 send_info() 使用 */
-		g_frame_seq_id = sequence_id;
-		g_frame_time_ns = unix_time_ns;
 		g_frame_latency = latency_ms;
 		g_seq_gap = gap;
 	}
@@ -427,17 +429,17 @@ void send_info(UART_HandleTypeDef *huart)
 						"Frame Errors      : %lu\r\n"
 						"Checksum Errors   : %lu\r\n"
 						"Data Anomalies    : %lu\r\n"
-						"Lost Packets      : %lu\r\n"
+						"Lost Packets      : %llu"
 						"\r\n=================== Bridge Stats ===================\r\n",
 						frame_error_count, checksum_error_count,
 						data_anomaly_count, lost_pkt_count);
-
+	// 2. 帧元数据（全局变量）
 	USART_SendFormatted(huart,
 						"\r\n==================== Frame Meta ====================\r\n"
 						"Seq-ID          : %lu\r\n"
 						"Unix-time (ns)  : %llu\r\n"
-						"Δt to prev (ms) : %.3f\r\n"
-						"Seq Gap         : %lu\r\n"
+						"dt to prev (ms) : %.3f\r\n"
+						"Seq Gap         : %lu"
 						"\r\n==================== Frame Meta ====================\r\n",
 						(unsigned long)g_frame_seq_id,
 						(unsigned long long)g_frame_time_ns,
@@ -445,42 +447,29 @@ void send_info(UART_HandleTypeDef *huart)
 
 #if SEND_DETAIL
 	// 3. 72 B Payload（与原版保持一致，仅排版略紧凑）
-	USART_SendFormatted(huart,
-						"\r\n================== Parsed Payload ==================\r\n"
-						"Desired Pos        : %.3f, %.3f, %.3f\r\n"
-						"Desired Vel        : %.3f, %.3f, %.3f\r\n"
-						"Desired Acc        : %.3f, %.3f, %.3f\r\n"
-						"Desired Ang        : %.3f, %.3f, %.3f\r\n"
-						"Desired AngVel     : %.3f, %.3f, %.3f\r\n"
-						"Desired AngAcc     : %.3f, %.3f, %.3f\r\n"
-						"Position           : %.3f, %.3f, %.3f\r\n"
-						"Velocity           : %.3f, %.3f, %.3f\r\n"
-						"Acceleration       : %.3f, %.3f, %.3f\r\n"
-						"Angles             : %.3f, %.3f, %.3f\r\n"
-						"Angular Vel        : %.3f, %.3f, %.3f\r\n"
-						"Angular Acc        : %.3f, %.3f, %.3f\r\n"
-						"\r\n================== Parsed Payload ==================\r\n",
-						ctrl_input.desired_position[0], ctrl_input.desired_position[1], ctrl_input.desired_position[2],
-						ctrl_input.desired_velocity[0], ctrl_input.desired_velocity[1], ctrl_input.desired_velocity[2],
-						ctrl_input.desired_acceleration[0], ctrl_input.desired_acceleration[1], ctrl_input.desired_acceleration[2],
-						ctrl_input.desired_angles[0], ctrl_input.desired_angles[1], ctrl_input.desired_angles[2],
-						ctrl_input.desired_angular_velocity[0], ctrl_input.desired_angular_velocity[1], ctrl_input.desired_angular_velocity[2],
-						ctrl_input.desired_angular_acceleration[0], ctrl_input.desired_angular_acceleration[1], ctrl_input.desired_angular_acceleration[2],
-						ctrl_input.position[0], ctrl_input.position[1], ctrl_input.position[2],
-						ctrl_input.velocity[0], ctrl_input.velocity[1], ctrl_input.velocity[2],
-						ctrl_input.acceleration[0], ctrl_input.acceleration[1], ctrl_input.acceleration[2],
-						ctrl_input.angles[0], ctrl_input.angles[1], ctrl_input.angles[2],
-						ctrl_input.angular_velocity[0], ctrl_input.angular_velocity[1], ctrl_input.angular_velocity[2],
-						ctrl_input.angular_acceleration[0], ctrl_input.angular_acceleration[1], ctrl_input.angular_acceleration[2]);
+	USART_SendFormatted(huart, "\r\n================== Parsed Payload ==================\r\n");
+	USART_SendFormatted(huart, "Desired Pos : %.3f, %.3f, %.3f\r\n", ctrl_input.desired_position[0], ctrl_input.desired_position[1], ctrl_input.desired_position[2]);
+	USART_SendFormatted(huart, "Desired Vel : %.3f, %.3f, %.3f\r\n", ctrl_input.desired_velocity[0], ctrl_input.desired_velocity[1], ctrl_input.desired_velocity[2]);
+	USART_SendFormatted(huart, "Desired Acc : %.3f, %.3f, %.3f\r\n", ctrl_input.desired_acceleration[0], ctrl_input.desired_acceleration[1], ctrl_input.desired_acceleration[2]);
+	USART_SendFormatted(huart, "Desired Ang : %.3f, %.3f, %.3f\r\n", ctrl_input.desired_angles[0], ctrl_input.desired_angles[1], ctrl_input.desired_angles[2]);
+	USART_SendFormatted(huart, "Desired Ang Vel : %.3f, %.3f, %.3f\r\n", ctrl_input.desired_angular_velocity[0], ctrl_input.desired_angular_velocity[1], ctrl_input.desired_angular_velocity[2]);
+	USART_SendFormatted(huart, "Desired Ang Acc : %.3f, %.3f, %.3f\r\n", ctrl_input.desired_angular_acceleration[0], ctrl_input.desired_angular_acceleration[1], ctrl_input.desired_angular_acceleration[2]);
+	USART_SendFormatted(huart, "Position : %.3f, %.3f, %.3f\r\n", ctrl_input.position[0], ctrl_input.position[1], ctrl_input.position[2]);
+	USART_SendFormatted(huart, "Velocity : %.3f, %.3f, %.3f\r\n", ctrl_input.velocity[0], ctrl_input.velocity[1], ctrl_input.velocity[2]);
+	USART_SendFormatted(huart, "Acceleration : %.3f, %.3f, %.3f\r\n", ctrl_input.acceleration[0], ctrl_input.acceleration[1], ctrl_input.acceleration[2]);
+	USART_SendFormatted(huart, "Angles : %.3f, %.3f, %.3f\r\n", ctrl_input.angles[0], ctrl_input.angles[1], ctrl_input.angles[2]);
+	USART_SendFormatted(huart, "Angular Vel : %.3f, %.3f, %.3f\r\n", ctrl_input.angular_velocity[0], ctrl_input.angular_velocity[1], ctrl_input.angular_velocity[2]);
+	USART_SendFormatted(huart, "Angular Acc : %.3f, %.3f, %.3f", ctrl_input.angular_acceleration[0], ctrl_input.angular_acceleration[1], ctrl_input.angular_acceleration[2]);
+	USART_SendFormatted(huart, "\r\n================== Parsed Payload ==================\r\n");
 
-	// 通过TERM_UART打印控制器求解输出----------------------------------------------------------------
+	// 4. 通过TERM_UART打印控制器求解输出----------------------------------------------------------------
 	USART_SendFormatted(huart, "\r\n=============== Control Force/Torque ===============\r\n");
 	USART_SendFormatted(huart, "Thrust: [%.3f, %.3f, %.3f]\r\n", ctrl_output.thrust[0], ctrl_output.thrust[1], ctrl_output.thrust[2]);
-	USART_SendFormatted(huart, "Torque: [%.3f, %.3f, %.3f]\r\n", ctrl_output.torque[0], ctrl_output.torque[1], ctrl_output.torque[2]);
+	USART_SendFormatted(huart, "Torque: [%.3f, %.3f, %.3f]", ctrl_output.torque[0], ctrl_output.torque[1], ctrl_output.torque[2]);
 	USART_SendFormatted(huart, "\r\n=============== Control Force/Torque ===============\r\n");
 	//------------------------------------------------------------------------------------------
 
-	// 通过TERM_UART打印风扇控制信息------------------------------------------------------------------
+	// 5. 通过TERM_UART打印风扇控制信息------------------------------------------------------------------
 	USART_SendFormatted(huart, "\r\n=============== Calculated Fan Speed ===============\r\n");
 	USART_SendFormatted(huart, "Fan duty rate in module 1(LT): LX+: %.3f, FY+: %.3f, LZ+: %.3f\r\n", Fan_Control_duty_rate.control_LX_p, Fan_Control_duty_rate.control_FY_p, Fan_Control_duty_rate.control_LZ_p);
 	USART_SendFormatted(huart, "Fan duty rate in module 2(RT): RX-: %.3f, AY-: %.3f, RZ+: %.3f\r\n", Fan_Control_duty_rate.control_RX_n, Fan_Control_duty_rate.control_AY_n, Fan_Control_duty_rate.control_RZ_p);
@@ -489,7 +478,7 @@ void send_info(UART_HandleTypeDef *huart)
 	USART_SendFormatted(huart, "Desired Fan speed in module 1(LT): LX+: %.3f, FY+: %.3f, LZ+: %.3f\r\n", Fan_desire_Speed.omega_LX_p, Fan_desire_Speed.omega_FY_p, Fan_desire_Speed.omega_LZ_p);
 	USART_SendFormatted(huart, "Desired Fan speed in module 2(RT): RX-: %.3f, AY-: %.3f, RZ+: %.3f\r\n", Fan_desire_Speed.omega_RX_n, Fan_desire_Speed.omega_AY_n, Fan_desire_Speed.omega_RZ_p);
 	USART_SendFormatted(huart, "Desired Fan speed in module 3(LB): LX-: %.3f, AY+: %.3f, LZ-: %.3f\r\n", Fan_desire_Speed.omega_LX_n, Fan_desire_Speed.omega_AY_p, Fan_desire_Speed.omega_LZ_n);
-	USART_SendFormatted(huart, "Desired Fan speed in module 4(RB): RX+: %.3f, FY-: %.3f, RZ-: %.3f\r\n", Fan_desire_Speed.omega_RX_p, Fan_desire_Speed.omega_FY_n, Fan_desire_Speed.omega_RZ_n);
+	USART_SendFormatted(huart, "Desired Fan speed in module 4(RB): RX+: %.3f, FY-: %.3f, RZ-: %.3f", Fan_desire_Speed.omega_RX_p, Fan_desire_Speed.omega_FY_n, Fan_desire_Speed.omega_RZ_n);
 	USART_SendFormatted(huart, "\r\n=============== Calculated Fan Speed ===============\r\n");
 	//------------------------------------------------------------------------------------------
 #endif

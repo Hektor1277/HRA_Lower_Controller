@@ -5394,25 +5394,25 @@ Image Symbol Table
     i.sat                                    0x080070c4   Section        0  silde_mode_controller.o(i.sat)
     sat                                      0x080070c5   Thumb Code    46  silde_mode_controller.o(i.sat)
     i.send_info                              0x080070f4   Section        0  usart.o(i.send_info)
-    i.uart_init                              0x08007634   Section        0  usart.o(i.uart_init)
-    i.update_Rsb                             0x0800766c   Section        0  silde_mode_controller.o(i.update_Rsb)
-    .constdata                               0x08007744   Section       64  system_stm32h7xx.o(.constdata)
-    UARTPrescTable                           0x08007744   Data          24  system_stm32h7xx.o(.constdata)
-    USARTPrescTable                          0x0800775c   Data          24  system_stm32h7xx.o(.constdata)
-    .constdata                               0x08007784   Section       52  usart.o(.constdata)
-    UARTPrescTable                           0x08007784   Data          24  usart.o(.constdata)
-    USARTPrescTable                          0x0800779c   Data          24  usart.o(.constdata)
-    .constdata                               0x080077b8   Section       48  stm32h7xx_hal_uart.o(.constdata)
-    UARTPrescTable                           0x080077b8   Data          24  stm32h7xx_hal_uart.o(.constdata)
-    USARTPrescTable                          0x080077d0   Data          24  stm32h7xx_hal_uart.o(.constdata)
-    .constdata                               0x080077e8   Section     1200  pgd.o(.constdata)
-    UARTPrescTable                           0x080077e8   Data          24  pgd.o(.constdata)
-    USARTPrescTable                          0x08007800   Data          24  pgd.o(.constdata)
-    .constdata                               0x08007c98   Section       32  rredf.o(.constdata)
-    twooverpi                                0x08007c98   Data          32  rredf.o(.constdata)
-    .conststring                             0x08007cb8   Section       82  main.o(.conststring)
-    .conststring                             0x08007d0c   Section     1565  usart.o(.conststring)
-    .conststring                             0x0800832c   Section       82  pgd.o(.conststring)
+    i.uart_init                              0x080078b8   Section        0  usart.o(i.uart_init)
+    i.update_Rsb                             0x080078f0   Section        0  silde_mode_controller.o(i.update_Rsb)
+    .constdata                               0x080079c8   Section       64  system_stm32h7xx.o(.constdata)
+    UARTPrescTable                           0x080079c8   Data          24  system_stm32h7xx.o(.constdata)
+    USARTPrescTable                          0x080079e0   Data          24  system_stm32h7xx.o(.constdata)
+    .constdata                               0x08007a08   Section       52  usart.o(.constdata)
+    UARTPrescTable                           0x08007a08   Data          24  usart.o(.constdata)
+    USARTPrescTable                          0x08007a20   Data          24  usart.o(.constdata)
+    .constdata                               0x08007a3c   Section       48  stm32h7xx_hal_uart.o(.constdata)
+    UARTPrescTable                           0x08007a3c   Data          24  stm32h7xx_hal_uart.o(.constdata)
+    USARTPrescTable                          0x08007a54   Data          24  stm32h7xx_hal_uart.o(.constdata)
+    .constdata                               0x08007a70   Section     1200  pgd.o(.constdata)
+    UARTPrescTable                           0x08007a70   Data          24  pgd.o(.constdata)
+    USARTPrescTable                          0x08007a88   Data          24  pgd.o(.constdata)
+    .constdata                               0x08007f20   Section       32  rredf.o(.constdata)
+    twooverpi                                0x08007f20   Data          32  rredf.o(.constdata)
+    .conststring                             0x08007f40   Section       82  main.o(.conststring)
+    .conststring                             0x08007f94   Section      975  usart.o(.conststring)
+    .conststring                             0x08008364   Section       82  pgd.o(.conststring)
     .data                                    0x24000000   Section        8  system_stm32h7xx.o(.data)
     .data                                    0x24000008   Section       64  silde_mode_controller.o(.data)
     mass_f                                   0x24000008   Data           4  silde_mode_controller.o(.data)
@@ -5769,19 +5769,19 @@ Image Symbol Table
     is_in_column_space                       0x08006565   Thumb Code   146  pgd.o(i.is_in_column_space)
     main                                     0x08006675   Thumb Code    86  main.o(i.main)
     malloc                                   0x08006725   Thumb Code    92  malloc.o(i.malloc)
-    parse_data                               0x08006791   Thumb Code  1454  usart.o(i.parse_data)
+    parse_data                               0x08006791   Thumb Code  1462  usart.o(i.parse_data)
     print_vector                             0x08006d65   Thumb Code    66  pgd.o(i.print_vector)
     project_target                           0x08006dc1   Thumb Code   116  pgd.o(i.project_target)
     projected_gradient_descent               0x08006e45   Thumb Code   442  pgd.o(i.projected_gradient_descent)
-    send_info                                0x080070f5   Thumb Code  1338  usart.o(i.send_info)
-    uart_init                                0x08007635   Thumb Code    44  usart.o(i.uart_init)
-    update_Rsb                               0x0800766d   Thumb Code   210  silde_mode_controller.o(i.update_Rsb)
-    D1CorePrescTable                         0x08007774   Data          16  system_stm32h7xx.o(.constdata)
-    THRESHOLD                                0x080077b4   Data           4  usart.o(.constdata)
-    M                                        0x08007818   Data         576  pgd.o(.constdata)
-    M_pseudo                                 0x08007a58   Data         576  pgd.o(.constdata)
-    Region$$Table$$Base                      0x08008380   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x080083a0   Number         0  anon$$obj.o(Region$$Table)
+    send_info                                0x080070f5   Thumb Code  1962  usart.o(i.send_info)
+    uart_init                                0x080078b9   Thumb Code    44  usart.o(i.uart_init)
+    update_Rsb                               0x080078f1   Thumb Code   210  silde_mode_controller.o(i.update_Rsb)
+    D1CorePrescTable                         0x080079f8   Data          16  system_stm32h7xx.o(.constdata)
+    THRESHOLD                                0x08007a38   Data           4  usart.o(.constdata)
+    M                                        0x08007aa0   Data         576  pgd.o(.constdata)
+    M_pseudo                                 0x08007ce0   Data         576  pgd.o(.constdata)
+    Region$$Table$$Base                      0x080083b8   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x080083d8   Number         0  anon$$obj.o(Region$$Table)
     SystemCoreClock                          0x24000000   Data           4  system_stm32h7xx.o(.data)
     SystemD2Clock                            0x24000004   Data           4  system_stm32h7xx.o(.data)
     frame_fault                              0x24000056   Data           1  usart.o(.data)
@@ -5826,9 +5826,9 @@ Memory Map of the image
 
   Image Entry point : 0x08000299
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00008454, Max: 0x00200000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x0000848c, Max: 0x00200000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x000083a0, Max: 0x00200000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x000083d8, Max: 0x00200000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -6011,43 +6011,44 @@ Memory Map of the image
     0x08006e44   0x08006e44   0x00000280   Code   RO        14885    i.projected_gradient_descent  pgd.o
     0x080070c4   0x080070c4   0x0000002e   Code   RO          503    i.sat               silde_mode_controller.o
     0x080070f2   0x080070f2   0x00000002   PAD
-    0x080070f4   0x080070f4   0x00000540   Code   RO          675    i.send_info         usart.o
-    0x08007634   0x08007634   0x00000038   Code   RO          676    i.uart_init         usart.o
-    0x0800766c   0x0800766c   0x000000d8   Code   RO          504    i.update_Rsb        silde_mode_controller.o
-    0x08007744   0x08007744   0x00000040   Data   RO          423    .constdata          system_stm32h7xx.o
-    0x08007784   0x08007784   0x00000034   Data   RO          678    .constdata          usart.o
-    0x080077b8   0x080077b8   0x00000030   Data   RO        13223    .constdata          stm32h7xx_hal_uart.o
-    0x080077e8   0x080077e8   0x000004b0   Data   RO        14886    .constdata          pgd.o
-    0x08007c98   0x08007c98   0x00000020   Data   RO        15093    .constdata          m_wv.l(rredf.o)
-    0x08007cb8   0x08007cb8   0x00000052   Data   RO            6    .conststring        main.o
-    0x08007d0a   0x08007d0a   0x00000002   PAD
-    0x08007d0c   0x08007d0c   0x0000061d   Data   RO          679    .conststring        usart.o
-    0x08008329   0x08008329   0x00000003   PAD
-    0x0800832c   0x0800832c   0x00000052   Data   RO        14887    .conststring        pgd.o
-    0x0800837e   0x0800837e   0x00000002   PAD
-    0x08008380   0x08008380   0x00000020   Data   RO        15150    Region$$Table       anon$$obj.o
+    0x080070f4   0x080070f4   0x000007c4   Code   RO          675    i.send_info         usart.o
+    0x080078b8   0x080078b8   0x00000038   Code   RO          676    i.uart_init         usart.o
+    0x080078f0   0x080078f0   0x000000d8   Code   RO          504    i.update_Rsb        silde_mode_controller.o
+    0x080079c8   0x080079c8   0x00000040   Data   RO          423    .constdata          system_stm32h7xx.o
+    0x08007a08   0x08007a08   0x00000034   Data   RO          678    .constdata          usart.o
+    0x08007a3c   0x08007a3c   0x00000030   Data   RO        13223    .constdata          stm32h7xx_hal_uart.o
+    0x08007a6c   0x08007a6c   0x00000004   PAD
+    0x08007a70   0x08007a70   0x000004b0   Data   RO        14886    .constdata          pgd.o
+    0x08007f20   0x08007f20   0x00000020   Data   RO        15093    .constdata          m_wv.l(rredf.o)
+    0x08007f40   0x08007f40   0x00000052   Data   RO            6    .conststring        main.o
+    0x08007f92   0x08007f92   0x00000002   PAD
+    0x08007f94   0x08007f94   0x000003cf   Data   RO          679    .conststring        usart.o
+    0x08008363   0x08008363   0x00000001   PAD
+    0x08008364   0x08008364   0x00000052   Data   RO        14887    .conststring        pgd.o
+    0x080083b6   0x080083b6   0x00000002   PAD
+    0x080083b8   0x080083b8   0x00000020   Data   RO        15150    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x080083a0, Size: 0x00000000, Max: 0x00020000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x080083d8, Size: 0x00000000, Max: 0x00020000, ABSOLUTE)
 
     **** No section assigned to this execution region ****
 
 
-    Execution Region RW_IRAM2 (Exec base: 0x24000000, Load base: 0x080083a0, Size: 0x00000c20, Max: 0x00080000, ABSOLUTE)
+    Execution Region RW_IRAM2 (Exec base: 0x24000000, Load base: 0x080083d8, Size: 0x00000c20, Max: 0x00080000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x24000000   0x080083a0   0x00000008   Data   RW          424    .data               system_stm32h7xx.o
-    0x24000008   0x080083a8   0x00000040   Data   RW          507    .data               silde_mode_controller.o
-    0x24000048   0x080083e8   0x00000004   Data   RW          572    .data               delay.o
-    0x2400004c   0x080083ec   0x00000004   PAD
-    0x24000050   0x080083f0   0x00000044   Data   RW          680    .data               usart.o
-    0x24000094   0x08008434   0x00000009   Data   RW          809    .data               stm32h7xx_hal.o
-    0x2400009d   0x0800843d   0x00000001   PAD
-    0x2400009e   0x0800843e   0x0000000a   Data   RW        14706    .data               timer.o
-    0x240000a8   0x08008448   0x00000004   Data   RW        15118    .data               mc_w.l(mvars.o)
-    0x240000ac   0x0800844c   0x00000004   Data   RW        15119    .data               mc_w.l(mvars.o)
-    0x240000b0   0x08008450   0x00000004   Data   RW        15123    .data               mc_w.l(errno.o)
+    0x24000000   0x080083d8   0x00000008   Data   RW          424    .data               system_stm32h7xx.o
+    0x24000008   0x080083e0   0x00000040   Data   RW          507    .data               silde_mode_controller.o
+    0x24000048   0x08008420   0x00000004   Data   RW          572    .data               delay.o
+    0x2400004c   0x08008424   0x00000004   PAD
+    0x24000050   0x08008428   0x00000044   Data   RW          680    .data               usart.o
+    0x24000094   0x0800846c   0x00000009   Data   RW          809    .data               stm32h7xx_hal.o
+    0x2400009d   0x08008475   0x00000001   PAD
+    0x2400009e   0x08008476   0x0000000a   Data   RW        14706    .data               timer.o
+    0x240000a8   0x08008480   0x00000004   Data   RW        15118    .data               mc_w.l(mvars.o)
+    0x240000ac   0x08008484   0x00000004   Data   RW        15119    .data               mc_w.l(mvars.o)
+    0x240000b0   0x08008488   0x00000004   Data   RW        15123    .data               mc_w.l(errno.o)
     0x240000b4        -       0x0000015c   Zero   RW          505    .bss                silde_mode_controller.o
     0x24000210        -       0x00000200   Zero   RW          677    .bss                usart.o
     0x24000410        -       0x000001b0   Zero   RW        14704    .bss                timer.o
@@ -6084,12 +6085,12 @@ Image component sizes
        556         30          0          0          0      37537   sys.o
        148         18         64          8          0       1358   system_stm32h7xx.o
       1104        136          0         10        432       5798   timer.o
-      3582        474       1617         68        512      12070   usart.o
+      4226        948       1027         68        512      12122   usart.o
 
     ----------------------------------------------------------------------
-     24180       2834       3796        168       2924    1397777   Object Totals
+     24824       3308       3208        168       2924    1397829   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-        20          0          7          5          0          0   (incl. Padding)
+        20          0          9          5          0          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -6157,15 +6158,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     29868       3148       3828        180       2924    1388865   Grand Totals
-     29868       3148       3828        180       2924    1388865   ELF Image Totals
-     29868       3148       3828        180          0          0   ROM Totals
+     30512       3622       3240        180       2924    1388917   Grand Totals
+     30512       3622       3240        180       2924    1388917   ELF Image Totals
+     30512       3622       3240        180          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                33696 (  32.91kB)
+    Total RO  Size (Code + RO Data)                33752 (  32.96kB)
     Total RW  Size (RW Data + ZI Data)              3104 (   3.03kB)
-    Total ROM Size (Code + RO Data + RW Data)      33876 (  33.08kB)
+    Total ROM Size (Code + RO Data + RW Data)      33932 (  33.14kB)
 
 ==============================================================================
 
