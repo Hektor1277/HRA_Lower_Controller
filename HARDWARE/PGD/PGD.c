@@ -112,6 +112,7 @@ int compute_residual(const double *F, const double *x, int status, int *accept_s
     // 计算 Mx
     compute_Mx(x, Mx);
 
+#if !OPERATING_MODE
     // 打印初始 F 和 PGD解计算得到的F = Mx
     USART_SendFormatted(&TERM_UART, "Original F:\r\n");
     for (int i = 0; i < M_ROWS; i++)
@@ -126,14 +127,18 @@ int compute_residual(const double *F, const double *x, int status, int *accept_s
         USART_SendFormatted(&TERM_UART, "%8.4f ", Mx[i]);
     }
     USART_SendFormatted(&TERM_UART, "\r\n");
+#endif
 
     // 打印每一项的残差
+#if !OPERATING_MODE
     USART_SendFormatted(&TERM_UART, "Residual for each element (F[i] - Mx[i]):\r\n");
+#endif
     for (int i = 0; i < M_ROWS; i++)
     {
         double diff = F[i] - Mx[i];
+#if !OPERATING_MODE
         USART_SendFormatted(&TERM_UART, "Residual[%d]: %8.4f ", i, diff);
-
+#endif
         if (status == 1)
         {                            // F 处于列空间，使用严格阈值
             residual += diff * diff; // 计算总残差平方和
@@ -147,21 +152,28 @@ int compute_residual(const double *F, const double *x, int status, int *accept_s
             }
         }
     }
+#if !OPERATING_MODE
     USART_SendFormatted(&TERM_UART, "\r\n");
+#endif
 
     if (status == 1)
     {                              // F 处于列空间
         residual = sqrt(residual); // 计算残差的平方根
+#if !OPERATING_MODE
         USART_SendFormatted(&TERM_UART, "Total Residual (F - Mx): %f\r\n", residual);
-
+#endif
         if (residual < Res_TOL)
         {
+#if !OPERATING_MODE
             USART_SendFormatted(&TERM_UART, "Residual is within tolerance.\r\n");
+#endif
             *accept_solution = 1; // 接受解
         }
         else
         {
+#if !OPERATING_MODE
             USART_SendFormatted(&TERM_UART, "Residual exceeds tolerance.\r\n");
+#endif
             *accept_solution = 0; // 不接受解
         }
     }
@@ -169,12 +181,16 @@ int compute_residual(const double *F, const double *x, int status, int *accept_s
     { // F 不处于列空间
         if (all_elements_within_tolerance)
         {
+#if !OPERATING_MODE
             USART_SendFormatted(&TERM_UART, "All elements are within 10%% tolerance.\r\n");
+#endif
             *accept_solution = 1; // 接受解
         }
         else
         {
+#if !OPERATING_MODE
             USART_SendFormatted(&TERM_UART, "Some elements exceed 10%% tolerance.\r\n");
+#endif
             *accept_solution = 0; // 不接受解
         }
     }
@@ -191,7 +207,7 @@ void Denormalize_solution(const double *PGD_solution, float *de_norm_PGD)
     {
         de_norm_PGD[i] = (float)sqrt(PGD_solution[i] / c_T);
     }
-
+#if !OPERATING_MODE
     USART_SendFormatted(&TERM_UART, "PGD Solution:\r\n");
 
     for (int i = 0; i < M_COLS; i++)
@@ -201,6 +217,7 @@ void Denormalize_solution(const double *PGD_solution, float *de_norm_PGD)
             USART_SendFormatted(&TERM_UART, "\r\n");
     }
     USART_SendFormatted(&TERM_UART, "\r\n");
+#endif
 }
 
 // 判断 F 是否在列空间中
@@ -215,16 +232,22 @@ int is_in_column_space(const double *F, const double *F_proj)
     }
     diff = sqrt(diff);
 
+#if !OPERATING_MODE
     USART_SendFormatted(&TERM_UART, "Projection Error Norm: %f\r\n", diff); // 打印误差范数
+#endif
 
     if (diff < 1e-5) // 判断误差是否小于阈值
     {
+#if !OPERATING_MODE
         USART_SendFormatted(&TERM_UART, "F is in the column space of M.\r\n");
+#endif
         return 1;
     }
     else
     {
+#if !OPERATING_MODE
         USART_SendFormatted(&TERM_UART, "F is NOT in the column space of M.\r\n");
+#endif
         return 0;
     }
 }
@@ -309,7 +332,9 @@ double backtracking_line_search(const double *F_proj, const double *x, const dou
         alpha *= beta;
         if (alpha < 1e-8)
         {
+#if !OPERATING_MODE
             USART_SendFormatted(&TERM_UART, "Step size too small, stopping line search.\r\n");
+#endif
             break;
         }
     }
@@ -377,24 +402,32 @@ void projected_gradient_descent(const double *F_proj, double *x)
         // 输出调试信息
         if (iter % PRINT_INTERVAL == 0)
         {
+#if !OPERATING_MODE
             USART_SendFormatted(&TERM_UART, "Iteration %d, Objective Value: %f, Grad Norm: %e, Max Update: %e, Step Size: %f\r\n",
                                 iter, f_new, grad_norm, max_update, alpha);
+#endif
         }
 
         // 早停条件
         if (grad_norm < 1e-6)
         {
+#if !OPERATING_MODE
             USART_SendFormatted(&TERM_UART, "Converged at iteration %d with gradient norm: %e\r\n", iter, grad_norm);
+#endif
             break;
         }
         if (delta_f < 1e-8)
         {
+#if !OPERATING_MODE
             USART_SendFormatted(&TERM_UART, "Stopped at iteration %d due to small objective change: %e\r\n", iter, delta_f);
+#endif
             break;
         }
         if (max_update < 1e-6)
         {
+#if !OPERATING_MODE
             USART_SendFormatted(&TERM_UART, "Stopped at iteration %d due to small update: %e\r\n", iter, max_update);
+#endif
             break;
         }
     }

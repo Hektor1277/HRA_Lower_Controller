@@ -31,7 +31,7 @@
 // 0 = 调试模式:   UART1 既收数据又打印调试
 // 1 = 运行模式:   UART2 收数据, UART1 打印调试
 //=============================================
-#define OPERATING_MODE 0              // 系统运行模式切换标志位
+#define OPERATING_MODE 1              // 系统运行模式切换标志位
 #define SEND_DETAIL (!OPERATING_MODE) // 调试模式发送完整 72 字段
 extern volatile uint32_t report_tick;
 

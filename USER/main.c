@@ -12,7 +12,7 @@
 #define ENABLE_CONTROLLER 1
 
 static volatile uint32_t report_tick = 0;
-const uint32_t REPORT_INTERVAL = 1000; // 100Hz下为10s
+const uint32_t REPORT_INTERVAL = 200; // 100Hz下为2s
 
 int main(void)
 {
@@ -22,7 +22,7 @@ int main(void)
     delay_init(480);                // 延时初始化
 
 #if ENABLE_USART
-    uart_init(115200); // 串口初始化
+    uart_init(230400); // 串口初始化
     // u16 times = 0;     // 计时
 
 #if !OPERATING_MODE
@@ -37,10 +37,9 @@ int main(void)
     USART_SendFormatted(&TERM_UART, "\r\n[DEBUG-MODE] Debug data frames responded via UART1, with non-fixed frequency.\r\n");
 #else
     TIM6_Init(); // 初始化TIM6
-    USART_SendFormatted(&TERM_UART, "\r\n[OPERATING-MODE] Control responses are executed at a frequency of 100Hz (or other frequencies, please refer to the timer header file).\r\n");
+    USART_SendFormatted(&TERM_UART, "\r\n[OPERATING-MODE] Control responses are executed at a frequency of 100Hz.\r\n");
 #endif
     PWM_Init(); // PWM初始化
-    Set_Fan_PWM(&Fan_Control_duty_rate);
 #endif
 
 #if ENABLE_CONTROLLER
