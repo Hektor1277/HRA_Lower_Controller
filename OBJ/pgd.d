@@ -99,4 +99,7 @@
 ..\obj\pgd.o: ..\CORE\core_cm7.h
 ..\obj\pgd.o: ..\SMC\Silde_Mode_Controller.h
 ..\obj\pgd.o: ..\SYSTEM\usart\usart.h
+..\obj\pgd.o: ..\HARDWARE\DMA\DMA.h
+..\obj\pgd.o: ..\SYSTEM\ringbuf\ringbuf.h
+..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h

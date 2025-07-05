@@ -1270,7 +1270,7 @@ ARM Macro Assembler    Page 20
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M7.fp.dp --apcs=
 interwork --depend=..\obj\startup_stm32h743xx.d -o..\obj\startup_stm32h743xx.o 
--IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7
+-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\4.1.0\Drivers\CMSIS\Device\ST\STM32H7
 xx\Include --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 
 539" --predefine="STM32H743xx SETA 1" --list=..\obj\startup_stm32h743xx.lst ..\
 CORE\startup_stm32h743xx.s

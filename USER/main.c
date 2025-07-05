@@ -11,7 +11,6 @@
 #define ENABLE_TIMER 1
 #define ENABLE_CONTROLLER 1
 
-static volatile uint32_t report_tick = 0;
 const uint32_t REPORT_INTERVAL = 200; // 100Hz下为2s
 
 int main(void)
@@ -23,7 +22,6 @@ int main(void)
 
 #if ENABLE_USART
     uart_init(230400); // 串口初始化
-    // u16 times = 0;     // 计时
 
 #if !OPERATING_MODE
     USART_SendFormatted(&TERM_UART, "\r\n[DEBUG-MODE] UART1 send & receive\r\n");
@@ -61,6 +59,13 @@ int main(void)
     while (1)
     {
 #if ENABLE_USART
+        uint8_t payload[72];
+        uint32_t seq;
+        uint64_t ts;
+
+        if (frame_extract(payload, &seq, &ts))
+            parse_data(payload, seq, ts, &ctrl_input, &prev_ctrl_input); // 解析数据帧
+
 #if OPERATING_MODE
         if (dbg_flag) // 触发定时器中断
         {

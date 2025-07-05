@@ -1,9 +1,6 @@
 ..\obj\dma.o: ..\HARDWARE\DMA\DMA.c
 ..\obj\dma.o: ..\HARDWARE\DMA\dma.h
-..\obj\dma.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h
-..\obj\dma.o: ..\USER\stm32h7xx_hal_conf.h
-..\obj\dma.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h
-..\obj\dma.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_def.h
+..\obj\dma.o: ..\SYSTEM\sys\sys.h
 ..\obj\dma.o: ..\USER\stm32h7xx.h
 ..\obj\dma.o: ..\USER\stm32h743xx.h
 ..\obj\dma.o: ..\CORE\core_cm7.h
@@ -12,6 +9,10 @@
 ..\obj\dma.o: ..\CORE\cmsis_armcc.h
 ..\obj\dma.o: ..\USER\system_stm32h7xx.h
 ..\obj\dma.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h
+..\obj\dma.o: ..\USER\stm32h7xx_hal_conf.h
+..\obj\dma.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h
+..\obj\dma.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_def.h
+..\obj\dma.o: ..\USER\stm32h7xx.h
 ..\obj\dma.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\Legacy/stm32_hal_legacy.h
 ..\obj\dma.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 ..\obj\dma.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc_ex.h
@@ -91,3 +92,4 @@
 ..\obj\dma.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h
 ..\obj\dma.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h
 ..\obj\dma.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h
+..\obj\dma.o: ..\CORE\core_cm7.h

@@ -16,7 +16,7 @@
         <TargetCommonOption>
           <Device>STM32H743IITx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32H7xx_DFP.3.1.1</PackID>
+          <PackID>Keil.STM32H7xx_DFP.4.1.0</PackID>
           <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000,0x00020000) IRAM2(0x24000000,0x00080000) IROM(0x08000000,0x00200000) CPUTYPE("Cortex-M7") FPU3(DFPU) CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER, STM32H743xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE;..\USER;..\SMC;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\HALLIB\STM32H7xx_HAL_Driver\Inc;..\HARDWARE\LED;..\HARDWARE\TIMER;..\HARDWARE\DMA;..\HARDWARE\Fan;..\HARDWARE\PGD</IncludePath>
+              <IncludePath>..\CORE;..\USER;..\SMC;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\SYSTEM\ringbuf;..\HALLIB\STM32H7xx_HAL_Driver\Inc;..\HARDWARE\LED;..\HARDWARE\TIMER;..\HARDWARE\DMA;..\HARDWARE\Fan;..\HARDWARE\PGD</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

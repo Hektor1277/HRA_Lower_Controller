@@ -95,8 +95,10 @@
 ..\obj\usart.o: ..\CORE\core_cm7.h
 ..\obj\usart.o: ..\HARDWARE\Fan\Fan.h
 ..\obj\usart.o: ..\SYSTEM\usart\usart.h
+..\obj\usart.o: ..\HARDWARE\DMA\DMA.h
+..\obj\usart.o: ..\SYSTEM\ringbuf\ringbuf.h
+..\obj\usart.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\usart.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\obj\usart.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\usart.o: ..\SYSTEM\delay\delay.h
 ..\obj\usart.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
-..\obj\usart.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

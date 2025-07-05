@@ -94,8 +94,10 @@
 ..\obj\timer.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h
 ..\obj\timer.o: ..\CORE\core_cm7.h
 ..\obj\timer.o: ..\SYSTEM\usart\usart.h
+..\obj\timer.o: ..\HARDWARE\DMA\DMA.h
+..\obj\timer.o: ..\SYSTEM\ringbuf\ringbuf.h
+..\obj\timer.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\timer.o: ..\SMC\Silde_Mode_Controller.h
 ..\obj\timer.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\obj\timer.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\timer.o: ..\HARDWARE\Fan\Fan.h
-..\obj\timer.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
