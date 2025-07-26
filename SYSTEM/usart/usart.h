@@ -17,6 +17,19 @@
            ↑Big - endian↑
 *************************************************************/
 
+//================== 系统模式选择 ==================
+// 0 = 调试模式:   系统低频运行，用于系统调试，此时发送全部调试信息
+// 1 = 运行模式:   系统高频运行，用于实际控制，仅发送高层信息
+#define OPERATING_MODE 0              // 系统运行模式切换标志位
+#define SEND_DETAIL (!OPERATING_MODE) // 调试模式发送完整 72 字段
+//=================================================
+
+//================== 串口模式选择 ==================
+// 0 = IT中断模式: 完全回退 IT
+// 1 = DMA模式:    DMA+IDLE
+#define USE_DMA_RX 0
+//=================================================
+
 // 数据帧格式定义
 #define FRAME_HEADER_1 0xAA
 #define FRAME_HEADER_2 0xBB
@@ -26,22 +39,15 @@
 #define FRAME_LEN 90u /* 2+4+8+72+2+2 */
 #define PAYLOAD_LEN 72u
 
-// PC 指令缓冲
-#define PC_CMD_LEN 64u
-
-//================== 模式选择 ==================
-// 0 = 调试模式:   系统低频运行，用于系统调试，此时发送全部调试信息
-// 1 = 运行模式:   系统高频运行，用于实际控制，仅发送高层信息
-//=============================================
-#define OPERATING_MODE 0              // 系统运行模式切换标志位
-#define SEND_DETAIL (!OPERATING_MODE) // 调试模式发送完整 72 字段
+// 缓冲区容量
+#define IT_CAPACITY (3 * FRAME_LEN) /* 足够缓存 3 帧 */
 
 // UART 句柄宏
-extern UART_HandleTypeDef UART1_Handler;
-extern UART_HandleTypeDef UART2_Handler;
+extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart2;
 
-#define DATA_UART UART2_Handler // 数据接口，接收高频数据帧，DMA RX ONLY   */
-#define TERM_UART UART1_Handler // 调试接口，发送调试信息并接收PC 指令，IT RX + DMA TX */
+#define TERM_UART huart1 // 调试接口，发送调试信息并接收PC 指令，IT RX + DMA TX */
+#define DATA_UART huart2 // 数据接口，接收高频数据帧，DMA RX ONLY   */
 
 // 全局调试量
 extern volatile uint32_t g_frame_seq_id;  /* 最近一帧的序号 */
@@ -69,6 +75,10 @@ void USART_SendFormatted(UART_HandleTypeDef *huart, const char *format, ...);
 
 // DMA非阻塞格式化发送（长报文）
 void USART_SendFormatted_DMA(UART_HandleTypeDef *huart, const char *format, ...);
+
+// DMA IDLE
+HAL_StatusTypeDef HAL_UARTEx_ReceiveToIdle_DMA(UART_HandleTypeDef *huart,
+                                               uint8_t *pData, uint16_t Size);
 
 // 低层 Tx API（主循环内直接调用）
 void dbg_tx_dma(UART_HandleTypeDef *huart, const char *msg, uint16_t len);

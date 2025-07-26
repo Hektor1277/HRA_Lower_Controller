@@ -1,27 +1,27 @@
 #ifndef _TIMER_H
 #define _TIMER_H
 #include "sys.h"
-#include "usart.h"
+#include "serial.h"
 #include "Silde_Mode_Controller.h"
 
-#define ctrl_arr 999  // ¼ÆÊıÆ÷×Ô¶¯ÖØ×°ÔØÖµ
-#define ctrl_psc 2399 // ·ÖÆµ
+#define ctrl_arr 999  // è®¡æ•°å™¨è‡ªåŠ¨é‡è£…è½½å€¼
+#define ctrl_psc 2399 // åˆ†é¢‘
+#define pwm_arr 959   // PWMè®¡æ•°å™¨è‡ªåŠ¨é‡è£…è½½å€¼
+#define pwm_psc 9     // PWMå®šæ—¶å™¨åˆ†é¢‘
 
-extern volatile uint8_t dbg_flag; // ÓÃÓÚ¿ØÖÆµ÷ÊÔÊä³öµÄ±êÖ¾Î»
+extern volatile uint8_t dbg_flag; // ç”¨äºæ§åˆ¶è°ƒè¯•è¾“å‡ºçš„æ ‡å¿—ä½
 
-extern TIM_HandleTypeDef TIM3_Handler; // ¶¨Ê±Æ÷¾ä±ú
-
-// ¶¨Ê±Æ÷×Ô¶¯ÖØ×°ÖµarrºÍÊ±ÖÓÔ¤·ÖÆµÊıpsc
-extern uint16_t CTRL_ARR; // ¿ØÖÆÖÜÆÚÊ±³¤Îª£ºTout=((CTRL_ARR+1)*(CTRL_PSC+1))/Ft =10ms. Ft=¶¨Ê±Æ÷¹¤×÷ÆµÂÊ, µ¥Î»:Mhz
+// å®šæ—¶å™¨è‡ªåŠ¨é‡è£…å€¼arrå’Œæ—¶é’Ÿé¢„åˆ†é¢‘æ•°psc
+extern uint16_t CTRL_ARR; // æ§åˆ¶å‘¨æœŸæ—¶é•¿ä¸ºï¼šTout=((CTRL_ARR+1)*(CTRL_PSC+1))/Ft =10ms. Ft=å®šæ—¶å™¨å·¥ä½œé¢‘ç‡, å•ä½:Mhz
 extern uint16_t CTRL_PSC;
-extern uint16_t PWM_ARR; // PWMÊä³öÆµÂÊÎª£ºFt=((PWM_ARR+1)*(PWM_PSC+1))/Tout 25kHz.
+extern uint16_t PWM_ARR; // PWMè¾“å‡ºé¢‘ç‡ä¸ºï¼šFt=((PWM_ARR+1)*(PWM_PSC+1))/Tout 25kHz.
 extern uint16_t PWM_PSC;
 
-// º¯ÊıÉùÃ÷
-void TIM6_Init(void); // ¶¨Ê±Æ÷3³õÊ¼»¯º¯Êı
-// void Set_Fan_PWM(float duty_rate[12]); // ÉèÖÃ·çÉÈPWMÊä³öÕ¼¿Õ±È
-void TIMx_PWM_Init(TIM_HandleTypeDef *htim, TIM_OC_InitTypeDef *sConfigOC);      // ¶¨Ê±Æ÷PWM³õÊ¼»¯º¯Êı
-void PWM_Init(void);                                                             // PWM³õÊ¼»¯º¯Êı
-void TIM_SetCompare(TIM_HandleTypeDef *htim, uint32_t Channel, float duty_rate); // ÉèÖÃ¶¨Ê±Æ÷±È½ÏÖµ
+// å‡½æ•°å£°æ˜
+void TIM6_Init(void); // å®šæ—¶å™¨3åˆå§‹åŒ–å‡½æ•°
+// void Set_Fan_PWM(float duty_rate[12]); // è®¾ç½®é£æ‰‡PWMè¾“å‡ºå ç©ºæ¯”
+void TIMx_PWM_Init(TIM_HandleTypeDef *htim, TIM_OC_InitTypeDef *sConfigOC);      // å®šæ—¶å™¨PWMåˆå§‹åŒ–å‡½æ•°
+void PWM_Init(void);                                                             // PWMåˆå§‹åŒ–å‡½æ•°
+void TIM_SetCompare(TIM_HandleTypeDef *htim, uint32_t Channel, float duty_rate); // è®¾ç½®å®šæ—¶å™¨æ¯”è¾ƒå€¼
 
 #endif

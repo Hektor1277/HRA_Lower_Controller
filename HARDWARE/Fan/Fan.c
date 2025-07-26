@@ -1,6 +1,6 @@
 #include "Fan.h"
 #include "timer.h"
-#include "usart.h"
+#include "serial.h"
 #include "PGD.h"
 #include <math.h>
 
@@ -48,10 +48,10 @@ extern ControllerOutput ctrl_output;
 FanSpeed Fan_desire_Speed = {0};
 FanControl Fan_Control_duty_rate = {0};
 
-extern TIM_HandleTypeDef TIM3_Handler; // 定时器3句柄
-extern TIM_HandleTypeDef TIM4_Handler; // 定时器4句柄
-extern TIM_HandleTypeDef TIM5_Handler; // 定时器5句柄
-extern TIM_HandleTypeDef TIM8_Handler; // 定时器8句柄
+extern TIM_HandleTypeDef htim3; // 定时器3句柄
+extern TIM_HandleTypeDef htim4; // 定时器4句柄
+extern TIM_HandleTypeDef htim5; // 定时器5句柄
+extern TIM_HandleTypeDef htim8; // 定时器8句柄
 
 extern TIM_OC_InitTypeDef TIM3_CHHandler; // 定时器3通道句柄
 extern TIM_OC_InitTypeDef TIM4_CHHandler; // 定时器4通道句柄
@@ -67,8 +67,8 @@ void Fan_Rotation_Control(ControllerOutput *output, FanSpeed *fan_speed, FanCont
     Calculate_Duty_Rate(fan_speed, duty_rate);
     // 设置各风扇对应通道PWM输出占空比
     Set_Fan_PWM(duty_rate);
-#if !OPERATING_MODE
-    USART_SendFormatted(&TERM_UART, "Fan Speed calculated and PWM duty cycle set.\r\n");
+#if SEND_DETAIL
+    USART_SendFormatted_DMA("Fan Speed calculated and PWM duty cycle set.\r\n");
 #endif
 }
 
@@ -87,9 +87,9 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
     int F_status = 0;              // 存储 F 是否在列空间中的状态
     int accept_solution = 0;       // 存储是否接受解的状态
 
-#if !OPERATING_MODE
-    USART_SendFormatted(&TERM_UART, "PGD input Thrust: [%.5f, %.5f, %.5f]\r\n", output->thrust[0], output->thrust[1], output->thrust[2]);
-    USART_SendFormatted(&TERM_UART, "PGD input Torque: [%.5f, %.5f, %.5f]\r\n", output->torque[0], output->torque[1], output->torque[2]);
+#if SEND_DETAIL
+    USART_SendFormatted_DMA("PGD input Thrust: [%.5f, %.5f, %.5f]\r\n", output->thrust[0], output->thrust[1], output->thrust[2]);
+    USART_SendFormatted_DMA("PGD input Torque: [%.5f, %.5f, %.5f]\r\n", output->torque[0], output->torque[1], output->torque[2]);
 #endif
 
     for (int i = 0; i < 3; i++) // 从控制器输出合力中提取 F 向量
@@ -98,24 +98,24 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
         F_origin[i + 3] = output->torque[i]; // 单位N·m,取值范围[-0.06,0.06]
     }
 
-#if !OPERATING_MODE
-    USART_SendFormatted(&TERM_UART, "PGD input F_norm:\r\n[");
+#if SEND_DETAIL
+    USART_SendFormatted_DMA("PGD input F_norm:\r\n[");
 #endif
 
     for (int i = 0; i < 6; i++) // 归一化 F 向量
     {
         F_norm[i] = F_origin[i] / (2 * FMAX); // 单位N,取值范围[-0.4,0.4] / (2 * FMAX) → [-1, 1]; 单位N·m,取值范围[-0.06,0.06] / (2 * FMAX) → [-0.15, 0.15]
-#if !OPERATING_MODE
-        USART_SendFormatted(&TERM_UART, " %.3f ", F_norm[i]);
+#if SEND_DETAIL
+        USART_SendFormatted_DMA(" %.3f ", F_norm[i]);
 #endif
     }
-#if !OPERATING_MODE
-    USART_SendFormatted(&TERM_UART, "]\r\n");
+#if SEND_DETAIL
+    USART_SendFormatted_DMA("]\r\n");
 #endif
 
     project_target(F_norm, F_proj); // 将归一化后的 F 向量投影至控制效率矩阵列空间
 
-#if !OPERATING_MODE
+#if SEND_DETAIL
     print_vector("Projected Target F_proj", F_proj, M_ROWS);
 #endif
 
@@ -123,14 +123,14 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
     F_status = is_in_column_space(F_norm, F_proj);
 
     // Step 3: 使用投影梯度下降法求解
-#if !OPERATING_MODE
-    USART_SendFormatted(&TERM_UART, "\r\nRunning Projected Gradient Descent...\r\n");
+#if SEND_DETAIL
+    USART_SendFormatted_DMA("\r\nRunning Projected Gradient Descent...\r\n");
 #endif
     projected_gradient_descent(F_proj, PGD_solution);
 
     // Step 4: 计算解的残差, 并根据残差判断是否接受解
-#if !OPERATING_MODE
-    USART_SendFormatted(&TERM_UART, "\r\nVerifying PGD Solution...\r\n");
+#if SEND_DETAIL
+    USART_SendFormatted_DMA("\r\nVerifying PGD Solution...\r\n");
 #endif
     compute_residual(F_norm, PGD_solution, F_status, &accept_solution);
 
@@ -202,22 +202,22 @@ void Calculate_Duty_Rate(FanSpeed *fan_speed, FanControl *duty_rate)
 void Set_Fan_PWM(FanControl *duty_rate)
 {
     // 设置左上模块(编号1, LX+, FY+, LZ+, 对应PI5, 6, 7)的三个通道的占空比
-    TIM_SetCompare(&TIM8_Handler, TIM_CHANNEL_1, duty_rate->control_LX_p); // 定时器8通道1为PI5, 对应左上模块的LX+
-    TIM_SetCompare(&TIM8_Handler, TIM_CHANNEL_2, duty_rate->control_FY_p); // 定时器8通道2为PI6, 对应左上模块的FY+
-    TIM_SetCompare(&TIM8_Handler, TIM_CHANNEL_3, duty_rate->control_LZ_p); // 定时器8通道3为PI7, 对应左上模块的LZ+
+    TIM_SetCompare(&htim8, TIM_CHANNEL_1, duty_rate->control_LX_p); // 定时器8通道1为PI5, 对应左上模块的LX+
+    TIM_SetCompare(&htim8, TIM_CHANNEL_2, duty_rate->control_FY_p); // 定时器8通道2为PI6, 对应左上模块的FY+
+    TIM_SetCompare(&htim8, TIM_CHANNEL_3, duty_rate->control_LZ_p); // 定时器8通道3为PI7, 对应左上模块的LZ+
 
     // 设置右上模块(编号2, RX-, AY-, RZ+, 对应PA7和PB0, 1)三个通道的占空比
-    TIM_SetCompare(&TIM3_Handler, TIM_CHANNEL_2, duty_rate->control_RX_n); // 定时器3通道2为PA7, 对应右上模块的RX-
-    TIM_SetCompare(&TIM3_Handler, TIM_CHANNEL_3, duty_rate->control_AY_n); // 定时器3通道3为PB0, 对应右上模块的AY-
-    TIM_SetCompare(&TIM3_Handler, TIM_CHANNEL_4, duty_rate->control_RZ_p); // 定时器3通道4为PB1, 对应右上模块的RZ+
+    TIM_SetCompare(&htim3, TIM_CHANNEL_2, duty_rate->control_RX_n); // 定时器3通道2为PA7, 对应右上模块的RX-
+    TIM_SetCompare(&htim3, TIM_CHANNEL_3, duty_rate->control_AY_n); // 定时器3通道3为PB0, 对应右上模块的AY-
+    TIM_SetCompare(&htim3, TIM_CHANNEL_4, duty_rate->control_RZ_p); // 定时器3通道4为PB1, 对应右上模块的RZ+
 
     // 设置左下模块(编号3, LX-, AY+, LZ-, 对应PB7, 8, 9)三个通道的占空比
-    TIM_SetCompare(&TIM4_Handler, TIM_CHANNEL_2, duty_rate->control_LX_n); // 定时器4通道2为PB7, 对应左下模块的LX-
-    TIM_SetCompare(&TIM4_Handler, TIM_CHANNEL_3, duty_rate->control_AY_p); // 定时器4通道3为PB8, 对应左下模块的AY+
-    TIM_SetCompare(&TIM4_Handler, TIM_CHANNEL_4, duty_rate->control_LZ_n); // 定时器4通道4为PB9, 对应左下模块的LZ-
+    TIM_SetCompare(&htim4, TIM_CHANNEL_2, duty_rate->control_LX_n); // 定时器4通道2为PB7, 对应左下模块的LX-
+    TIM_SetCompare(&htim4, TIM_CHANNEL_3, duty_rate->control_AY_p); // 定时器4通道3为PB8, 对应左下模块的AY+
+    TIM_SetCompare(&htim4, TIM_CHANNEL_4, duty_rate->control_LZ_n); // 定时器4通道4为PB9, 对应左下模块的LZ-
 
     // 设置右下模块(编号4, RX+, FY-, RZ-, 对应PA6和PH10, 11)三个通道的占空比
-    TIM_SetCompare(&TIM3_Handler, TIM_CHANNEL_1, duty_rate->control_RX_p); // 定时器3通道1为PA6, 对应右下模块的RX+
-    TIM_SetCompare(&TIM5_Handler, TIM_CHANNEL_1, duty_rate->control_FY_n); // 定时器5通道1为PH10, 对应右下模块的FY-
-    TIM_SetCompare(&TIM5_Handler, TIM_CHANNEL_2, duty_rate->control_RZ_n); // 定时器5通道2为PH11, 对应右下模块的RZ-
+    TIM_SetCompare(&htim3, TIM_CHANNEL_1, duty_rate->control_RX_p); // 定时器3通道1为PA6, 对应右下模块的RX+
+    TIM_SetCompare(&htim5, TIM_CHANNEL_1, duty_rate->control_FY_n); // 定时器5通道1为PH10, 对应右下模块的FY-
+    TIM_SetCompare(&htim5, TIM_CHANNEL_2, duty_rate->control_RZ_n); // 定时器5通道2为PH11, 对应右下模块的RZ-
 }

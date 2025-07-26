@@ -92,3 +92,9 @@
 ..\obj\sys.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h
 ..\obj\sys.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h
 ..\obj\sys.o: ..\CORE\core_cm7.h
+..\obj\sys.o: ..\SYSTEM\serial\serial.h
+..\obj\sys.o: ..\CORE\core_cm7.h
+..\obj\sys.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+..\obj\sys.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
+..\obj\sys.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+..\obj\sys.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h

@@ -7,6 +7,26 @@
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
+#include "stm32h7xx_hal.h"
+
+/* ===================== DMA BEGIN ===================*/
+
+#define DBG_TX_PERIOD_MS 5000u /* 调试信息刷新间隔 */
+static RingBuf_t rb;
+#if USE_DMA_RX
+static uint8_t dma_rx_mem[IT_CAPACITY] __attribute__((aligned(32)));
+// DMA句柄
+extern DMA_HandleTypeDef hdma_usart2_rx; // 串口2 DMA接收句柄
+extern DMA_HandleTypeDef hdma_usart1_tx; // 串口1 DMA发送句柄
+#endif
+/* ===================== DMA END =====================*/
+
+/* ===================== IT BEGIN ===================*/
+static uint8_t it_rx_byte;			   // 接收 1 字节用
+static uint8_t it_rx_mem[IT_CAPACITY]; // ★ IT 专用环形缓存
+static uint8_t pc_rx_sta = 0;		   // PC 指令状态
+static uint8_t pc_rx_buf[IT_CAPACITY];
+/* ===================== IT END =====================*/
 
 // 控制器变量
 extern ControllerInput ctrl_input;
@@ -15,27 +35,9 @@ extern ControllerOutput ctrl_output;
 extern FanSpeed Fan_desire_Speed;
 extern FanControl Fan_Control_duty_rate;
 
-/* ==================== 用户可调宏 ==================================== */
-#define RB_CAPACITY (3 * FRAME_LEN) /* 足够缓存 3 帧 */
-#define DBG_TX_PERIOD_MS 5000u		/* 调试信息刷新间隔 */
-/* ==================================================================== */
-
-/* ===================== DMA BEGIN: 全局缓冲 ===================*/
-static uint8_t dma_rx_mem[RB_CAPACITY];
-static RingBuf_t rb;
-static uint32_t dbg_tick = 0;
-/* ===================== DMA END ==============================*/
-
-static uint8_t pc_rx_buf[PC_CMD_LEN];
-static uint8_t pc_rx_sta = 0; /* 收到 '\n' 时置 1 */
-
 // 串口句柄
-UART_HandleTypeDef UART1_Handler; // UART1句柄
-UART_HandleTypeDef UART2_Handler; // UART2句柄
-
-// DMA句柄
-extern DMA_HandleTypeDef hdma_usart2_rx; // 串口2 DMA接收句柄
-extern DMA_HandleTypeDef hdma_usart1_tx; // 串口1 DMA发送句柄
+UART_HandleTypeDef huart1; // UART1句柄
+UART_HandleTypeDef huart2; // UART2句柄
 
 bool frame_fault = false;	// 数据帧滤波标志位，0为正常，1为未通过滤波
 bool is_first_frame = true; // 标志是否是第一次接收数据
@@ -54,10 +56,6 @@ volatile uint64_t g_frame_time_ns = 0;
 volatile float g_frame_latency = 0.0f;
 volatile u32 g_seq_gap = 0;
 static volatile uint32_t report_tick = 0;
-
-// 用于计算帧间延迟的变量
-static uint64_t prev_unix_ns = 0; /* 仅用于计算 inter-frame latency */
-static u32 prev_seq_id = 0;
 
 /******************* 发送族 ***********************/
 
@@ -115,7 +113,7 @@ void dbg_tx_dma(UART_HandleTypeDef *huart, const char *msg, uint16_t len)
 // 串口初始化函数
 void uart_init(u32 bound)
 {
-	// 数据口初始化
+	// ==========数据口初始化=================
 	DATA_UART.Instance = USART2;
 	DATA_UART.Init.BaudRate = bound;				// 波特率
 	DATA_UART.Init.WordLength = UART_WORDLENGTH_8B; // 字长为8位数据格式
@@ -124,16 +122,30 @@ void uart_init(u32 bound)
 	DATA_UART.Init.HwFlowCtl = UART_HWCONTROL_NONE; // 无硬件流控
 	DATA_UART.Init.Mode = UART_MODE_TX_RX;			// 收发模式
 	HAL_UART_Init(&DATA_UART);						// HAL_UART_Init()使能DATA_UART
+#if USE_DMA_RX
+	rb_init(&rb, dma_rx_mem, IT_CAPACITY);
 	DMA_USART2_RX_Init(&DATA_UART);
+	/* 启动 DMA + 打开 IDLE */
+	HAL_UART_Receive_DMA(&DATA_UART, dma_rx_mem, IT_CAPACITY);
+	__HAL_UART_ENABLE_IT(&DATA_UART, UART_IT_IDLE);
+#else
+	/* 纯 IT 版本一次收 1 字节 */
+	rb_init(&rb, it_rx_mem, IT_CAPACITY);
+	HAL_UART_Receive_IT(&DATA_UART, &it_rx_byte, 1);
+#endif
+	// ==========数据口初始化=================
 
-	// 调试口初始化
+	// ==========调试口初始化=================
 	TERM_UART = (UART_HandleTypeDef){
 		.Instance = USART1,
 		.Init = DATA_UART.Init};
 	HAL_UART_Init(&TERM_UART);
-	DMA_USART1_TX_Init(&TERM_UART);
 	HAL_UART_Receive_IT(&TERM_UART, pc_rx_buf, 1);
-
+#if USE_DMA_RX
+	DMA_USART1_TX_Init(&TERM_UART);
+	__HAL_UART_ENABLE_IT(&TERM_UART, UART_IT_IDLE); // 使能 IDLE 中断
+#endif
+	// ==========调试口初始化=================
 	uart_dma_wait_idle(&TERM_UART);
 }
 
@@ -182,11 +194,56 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 /******************* 初始化 ***********************/
 
 /******************* 回调 *************************/
+#if USE_DMA_RX
 // IDLE 事件回调，仅更新 head 指针
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
 	if (huart->Instance == DATA_UART.Instance)
-		rb_push(&rb, Size); /* 只移动 head 指针 */
+	{
+		// 从缓冲区读取接收到的完整数据帧
+		uint8_t payload[72];
+		uint32_t seq;
+		uint64_t unix_ns;
+
+		if (frame_extract(payload, &seq, &unix_ns))
+		{
+			// 成功提取数据帧，进行数据解析
+			parse_data(payload, seq, unix_ns, &ctrl_input, &prev_ctrl_input);
+		}
+	}
+}
+#endif
+// 串口接收完成回调函数：当前使用回显作为占位符，并启动下一次接收
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+
+	if (huart->Instance == DATA_UART.Instance)
+	{
+		uint16_t idx = rb.head;
+		it_rx_mem[idx] = it_rx_byte;
+		rb_push(&rb, 1);
+
+		/* 继续下一字节接收 */
+		HAL_UART_Receive_IT(&DATA_UART, &it_rx_byte, 1);
+		uint8_t payload[72];
+		uint32_t seq;
+		uint64_t ts;
+		while (frame_extract(payload, &seq, &ts))
+			parse_data(payload, seq, ts, &ctrl_input, &prev_ctrl_input);
+	}
+	else if (huart->Instance == TERM_UART.Instance)
+	{
+		uint8_t ch = pc_rx_buf[pc_rx_sta];		  /* 刚收到的字节已在缓冲 */
+		HAL_UART_Transmit_IT(&TERM_UART, &ch, 1); /* 立即回显 */
+
+		if (ch == '\n' || ch == '\r')
+			pc_rx_sta = 0; /* 重置索引 */
+		else if (pc_rx_sta < IT_CAPACITY - 1)
+			pc_rx_sta++; /* 继续缓存 */
+
+		/* 重新启动下一字节接收 */
+		HAL_UART_Receive_IT(&TERM_UART, &pc_rx_buf[pc_rx_sta], 1);
+	}
 }
 
 // 串口接收错误回调函数：处理接收错误，清除错误标志并重新启动 DMA 接收
@@ -198,27 +255,35 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 	{
 		__HAL_UART_CLEAR_OREFLAG(huart);
 		/* 重新启动 DMA 到 IDLE — 2 µs 内可恢复 */
-		HAL_UARTEx_ReceiveToIdle_DMA(&DATA_UART, dma_rx_mem, RB_CAPACITY);
+		// HAL_UARTEx_ReceiveToIdle_DMA(&DATA_UART, dma_rx_mem, IT_CAPACITY);
 	}
 }
 
-// 调试串口接收完成回调函数：当前使用回显作为占位符，并启动下一次接收
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+void USART2_IRQHandler(void)
 {
-	if (huart->Instance != TERM_UART.Instance)
-		return;
-
-	uint8_t ch = pc_rx_buf[pc_rx_sta];		   /* 刚收到的字节已在缓冲 */
-	HAL_UART_Transmit(&TERM_UART, &ch, 1, 20); /* 立即回显 */
-
-	if (ch == '\n' || ch == '\r')
-		pc_rx_sta = 0; /* 重置索引 */
-	else if (pc_rx_sta < PC_CMD_LEN - 1)
-		pc_rx_sta++; /* 继续缓存 */
-
-	/* 重新启动下一字节接收 */
-	HAL_UART_Receive_IT(&TERM_UART, &pc_rx_buf[pc_rx_sta], 1);
+#if USE_DMA_RX
+	/* 在 DMA + IDLE 模式下，必须手动处理 IDLE 标志 */
+	if (__HAL_UART_GET_FLAG(&DATA_UART, UART_FLAG_IDLE))
+	{
+		__HAL_UART_CLEAR_IDLEFLAG(&DATA_UART);
+		uint16_t remain = __HAL_DMA_GET_COUNTER(DATA_UART.hdmarx);
+		rb_push(&rb, IT_CAPACITY - remain);
+	}
+	/* 若 DMA 已到尾，但刚好没 IDLE（极端情况） */
+	if (__HAL_DMA_GET_COUNTER(DATA_UART.hdmarx) == 0)
+	{
+		rb_push(&rb, IT_CAPACITY);
+	}
+#endif
+	HAL_UART_IRQHandler(&DATA_UART);
 }
+
+void USART1_IRQHandler(void)
+{
+	/* 纯 IT 模式 —— 调试口仅需把中断让给 HAL */
+	HAL_UART_IRQHandler(&TERM_UART);
+}
+
 /******************* 回调 *************************/
 
 /******************** 数据帧操作 ******************/
@@ -332,7 +397,12 @@ void send_info(UART_HandleTypeDef *huart)
 					  "\r\n==================== Frame Meta ====================\r\n",
 					  frame_error_count, data_anomaly_count, lost_pkt_count,
 					  (unsigned long)g_frame_seq_id, (unsigned long long)g_frame_time_ns, g_frame_latency, g_seq_gap);
+
+#if USE_DMA_RX
 	USART_SendFormatted_DMA(huart, "%s", debug_buf);
+#else
+	USART_SendFormatted(huart, "%s", debug_buf);
+#endif
 
 // 调试模式发送详细信息
 #if SEND_DETAIL
@@ -365,7 +435,12 @@ void send_info(UART_HandleTypeDef *huart)
 							 ctrl_input.angles[0], ctrl_input.angles[1], ctrl_input.angles[2],
 							 ctrl_input.angular_velocity[0], ctrl_input.angular_velocity[1], ctrl_input.angular_velocity[2],
 							 ctrl_input.angular_acceleration[0], ctrl_input.angular_acceleration[1], ctrl_input.angular_acceleration[2]);
+
+#if USE_DMA_RX
 	USART_SendFormatted_DMA(huart, "%s", frame_buf);
+#else
+	USART_SendFormatted(huart, "%s", frame_buf);
+#endif
 
 	// 控制输出
 	static char control_buf[1024];
@@ -376,7 +451,12 @@ void send_info(UART_HandleTypeDef *huart)
 							  "\r\n================== Control Output ===================\r\n",
 							  ctrl_output.thrust[0], ctrl_output.thrust[1], ctrl_output.thrust[2],
 							  ctrl_output.torque[0], ctrl_output.torque[1], ctrl_output.torque[2]);
+
+#if USE_DMA_RX
 	USART_SendFormatted_DMA(huart, "%s", control_buf);
+#else
+	USART_SendFormatted(huart, "%s", control_buf);
+#endif
 
 	// 风扇输出
 	static char fan_buf[1024];
@@ -399,6 +479,51 @@ void send_info(UART_HandleTypeDef *huart)
 						  Fan_desire_Speed.omega_RX_n, Fan_desire_Speed.omega_AY_n, Fan_desire_Speed.omega_RZ_p,
 						  Fan_desire_Speed.omega_LX_n, Fan_desire_Speed.omega_AY_p, Fan_desire_Speed.omega_LZ_n,
 						  Fan_desire_Speed.omega_RX_p, Fan_desire_Speed.omega_FY_n, Fan_desire_Speed.omega_RZ_n);
+
+#if USE_DMA_RX
 	USART_SendFormatted_DMA(huart, "%s", fan_buf);
+#else
+	USART_SendFormatted(huart, "%s", fan_buf);
+#endif
 #endif
 }
+
+/*********************************************************************
+ * 兼容旧 HAL (≤V1.8.x)：为 UART 增加 “DMA + Idle 触发” 收包能力
+ *********************************************************************/
+#ifndef HAL_UART_MODULE_ENABLED /* 若 HAL_UART 被裁剪，直接返回 ERROR */
+HAL_StatusTypeDef HAL_UARTEx_ReceiveToIdle_DMA(UART_HandleTypeDef *huart,
+											   uint8_t *pData, uint16_t Size)
+{
+	(void)huart;
+	(void)pData;
+	(void)Size;
+	return HAL_ERROR;
+}
+#else
+/* 仅当旧 HAL 里 _没有_ 该 API 时才编译本 shim */
+#if USE_DMA_RX && !defined(HAL_UARTEx_ReceiveToIdle_DMA)
+/**
+ * @brief  启动 UART DMA 接收，并开启 IDLE 中断。
+ * @note   由应用层在 UART_IRQHandler 里捕获 IDLE 标志：
+ *         if(__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE)) {...}
+ */
+HAL_StatusTypeDef HAL_UARTEx_ReceiveToIdle_DMA(UART_HandleTypeDef *huart,
+											   uint8_t *pData, uint16_t Size)
+{
+	HAL_StatusTypeDef ret;
+
+	/* ① 启动普通 DMA Rx */
+	ret = HAL_UART_Receive_DMA(huart, pData, Size);
+	if (ret != HAL_OK)
+		return ret;
+
+	/* ② 打开 IDLE 中断，让 UART_IRQHandler 能感知帧结束       */
+	/*    旧 HAL 中 HAL_UART_Receive_DMA 默认不会开 IDLE         */
+	__HAL_UART_CLEAR_IDLEFLAG(huart);		   // 先清旧标志
+	__HAL_UART_ENABLE_IT(huart, UART_IT_IDLE); // 开中断
+
+	return HAL_OK;
+}
+#endif /* shim */
+#endif /* HAL_UART_MODULE_ENABLED */

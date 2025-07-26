@@ -1,4 +1,5 @@
 #include "sys.h"
+#include "serial.h"
 
 // 使能CPU的L1-Cache
 void Cache_Enable(void)
@@ -6,6 +7,30 @@ void Cache_Enable(void)
 	SCB_EnableICache();	 // 使能I-Cache
 	SCB_EnableDCache();	 // 使能D-Cache
 	SCB->CACR |= 1 << 2; // 强制D-Cache透写,如不开启,实际使用中可能遇到各种问题
+}
+
+/* mpu_dma_nc.c  ——  SystemInit() 调完后、HAL_Init() 前调用 */
+void MPU_Config_DMA_NC(void)
+{
+	MPU_Region_InitTypeDef MPU_Init;
+
+	HAL_MPU_Disable();
+
+	MPU_Init.Enable = MPU_REGION_ENABLE;
+	MPU_Init.Number = MPU_REGION_NUMBER4;
+	MPU_Init.BaseAddress = (uint32_t)rx2_dma_buf; /* 0x30000000 */
+	MPU_Init.Size = MPU_REGION_SIZE_32KB;		  /* 32 KB 覆盖 rx2 + FIFO + 双缓冲 */
+	/* Device-shareable, Non-cacheable, Non-bufferable */
+	MPU_Init.TypeExtField = MPU_TEX_LEVEL0;
+	MPU_Init.IsCacheable = MPU_ACCESS_NOT_CACHEABLE;
+	MPU_Init.IsBufferable = MPU_ACCESS_NOT_BUFFERABLE;
+	MPU_Init.IsShareable = MPU_ACCESS_SHAREABLE; /* 推荐置 1 */
+	MPU_Init.AccessPermission = MPU_REGION_FULL_ACCESS;
+	MPU_Init.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
+	MPU_Init.SubRegionDisable = 0x00;
+	HAL_MPU_ConfigRegion(&MPU_Init);
+
+	HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 }
 
 // 时钟设置函数

@@ -95,11 +95,11 @@
 ..\obj\fan.o: ..\CORE\core_cm7.h
 ..\obj\fan.o: ..\SMC\Silde_Mode_Controller.h
 ..\obj\fan.o: ..\HARDWARE\TIMER\timer.h
-..\obj\fan.o: ..\SYSTEM\usart\usart.h
-..\obj\fan.o: ..\HARDWARE\DMA\DMA.h
-..\obj\fan.o: ..\SYSTEM\ringbuf\ringbuf.h
-..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+..\obj\fan.o: ..\SYSTEM\serial\serial.h
+..\obj\fan.o: ..\CORE\core_cm7.h
 ..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
+..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\fan.o: ..\HARDWARE\PGD\PGD.h
 ..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

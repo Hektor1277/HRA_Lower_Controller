@@ -18,7 +18,7 @@ void DMA_USART2_RX_Init(UART_HandleTypeDef *huart)
     HAL_DMA_Init(&hdma_usart2_rx);
 
     __HAL_LINKDMA(huart, hdmarx, hdma_usart2_rx);
-
+    __HAL_DMA_ENABLE_IT(&hdma_usart2_rx, DMA_IT_TC);
     HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 }

@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>SMC</TargetName>
+      <TargetName>HRA_Lower_Controller</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060750::V5.06 update 6 (build 750)::.\ARMCC</pCCUsed>
@@ -49,7 +49,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>..\OBJ\</OutputDirectory>
-          <OutputName>SMC</OutputName>
+          <OutputName>HRA_Lower_Controller</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER, STM32H743xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE;..\USER;..\SMC;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\SYSTEM\ringbuf;..\HALLIB\STM32H7xx_HAL_Driver\Inc;..\HARDWARE\LED;..\HARDWARE\TIMER;..\HARDWARE\DMA;..\HARDWARE\Fan;..\HARDWARE\PGD</IncludePath>
+              <IncludePath>..\CORE;..\USER;..\SMC;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\protocol;..\SYSTEM\serial;..\SYSTEM\ringbuf;..\HALLIB\STM32H7xx_HAL_Driver\Inc;..\HARDWARE\LED;..\HARDWARE\TIMER;..\HARDWARE\Fan;..\HARDWARE\PGD</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -362,7 +362,7 @@
             </VariousControls>
           </Aads>
           <LDads>
-            <umfTarg>1</umfTarg>
+            <umfTarg>0</umfTarg>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
             <noStLib>0</noStLib>
@@ -371,7 +371,7 @@
             <TextAddressRange>0x08000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile></ScatterFile>
+            <ScatterFile>..\OBJ\HRA_Lower_Controller.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc></Misc>
@@ -455,9 +455,14 @@
               <FilePath>..\SYSTEM\sys\sys.c</FilePath>
             </File>
             <File>
-              <FileName>usart.c</FileName>
+              <FileName>serial.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\SYSTEM\usart\usart.c</FilePath>
+              <FilePath>..\SYSTEM\serial\serial.c</FilePath>
+            </File>
+            <File>
+              <FileName>protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SYSTEM\protocol\protocol.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -868,11 +873,6 @@
               <FileName>timer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\TIMER\timer.c</FilePath>
-            </File>
-            <File>
-              <FileName>DMA.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\DMA\DMA.c</FilePath>
             </File>
             <File>
               <FileName>Fan.c</FileName>

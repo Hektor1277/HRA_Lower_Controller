@@ -1,5 +1,14 @@
 {
     "files.associations": {
-        "delay.h": "c"
+        "delay.h": "c",
+        "ringbuf.h": "c",
+        "stm32h7xx_hal.h": "c",
+        "silde_mode_controller.h": "c",
+        "stm32h7xx_hal_dma.h": "c",
+        "stm32h7xx_hal_uart_ex.h": "c",
+        "stm32h743xx.h": "c",
+        "math.h": "c",
+        "serial.h": "c",
+        "protocol.h": "c"
     }
 }
