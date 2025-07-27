@@ -23,6 +23,7 @@ int main(void)
     HAL_Init();                           // 初始化HAL库
     Stm32_Clock_Init(192, 5, 2, 2);       // 设置时钟
     delay_init(480);                      // 延时初始化
+    DWT_Enable();                         // 启用 DWT 计数器
     // SCB_DisableDCache();            // 关闭D-Cache
 
 #if ENABLE_USART
@@ -67,6 +68,13 @@ int main(void)
 #if ENABLE_USART
         proto_poll(); // 解析并更新 ctrl_input
 #if OPERATING_MODE
+        if (ctrl_buf[ctrl_r].valid)
+        {
+            ctrl_buf[ctrl_r].valid = false;
+            ControllerOutput local_out = ctrl_buf[ctrl_r].data; // 复制到局部
+            Calculate_Fan_Speed(&local_out, &Fan_desire_Speed); // 无告警调用
+            ctrl_r ^= 1u;
+        }
         if (dbg_flag) // 触发定时器中断
         {
             dbg_flag = 0;                         // 重置标志位

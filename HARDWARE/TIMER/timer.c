@@ -42,8 +42,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         Position_Controller(&ctrl_input, &ctrl_output);
         Attitude_Controller(&ctrl_input, &ctrl_output);
 
-        // 调用底层风扇控制函数，根据控制输出计算风扇转速并输出相应PWM信号
-        Fan_Rotation_Control(&ctrl_output, &Fan_desire_Speed, &Fan_Control_duty_rate);
+        // 将控制输出存入双缓冲区
+        ctrl_buf[ctrl_w].data = ctrl_output;
+        ctrl_buf[ctrl_w].valid = true;
+        ctrl_w ^= 1u; // 切换缓冲区写指针
     }
 }
 

@@ -62,6 +62,7 @@ typedef __I uint8_t vuc8;
 
 void Cache_Enable(void);                                       // 使能STM32H7的L1-Cahce
 void MPU_Config_DMA_NC(void);                                  // 配置DMA环形缓冲区为非Cache
+void DWT_Enable(void);                                         // 使能DWT计数器
 void Stm32_Clock_Init(u32 plln, u32 pllm, u32 pllp, u32 pllq); // 配置系统时钟
 u8 Get_ICahceSta(void);                                        // 判断I_Cache是否打开
 u8 Get_DCahceSta(void);                                        // 判断I_Dache是否打开

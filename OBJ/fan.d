@@ -94,10 +94,10 @@
 ..\obj\fan.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h
 ..\obj\fan.o: ..\CORE\core_cm7.h
 ..\obj\fan.o: ..\SMC\Silde_Mode_Controller.h
+..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\obj\fan.o: ..\HARDWARE\TIMER\timer.h
 ..\obj\fan.o: ..\SYSTEM\serial\serial.h
 ..\obj\fan.o: ..\CORE\core_cm7.h
-..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 ..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\fan.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h

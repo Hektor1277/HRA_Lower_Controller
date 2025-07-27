@@ -1,0 +1,101 @@
+以下列出的修改清单综合了前期分析和讨论，结合你提供的源代码结构和空间机器人控制系统的特点，对每个修改项明确了涉及的文件和目的。这样便于你对照项目源文件逐一实施。
+
+### 1. PGD 算法静态化与函数重构
+
+**涉及文件**：
+
+* `PGD.h`（对应上传的 `968c6c0d-8563-4d62-b4c0-ad45162ad85c.h`）
+* `PGD.c`（对应上传的 `73af4e32-c03c-4081-acdc-bcf8dd5d5348.c`）
+
+**修改内容与目的**：
+
+1. 在 `PGD.h` 中定义一个静态工作区结构体 `PGD_Work`，包含 `g[M_COLS]`、`x_prev[M_COLS]`、`x_new[M_COLS]`、`Mx[M_ROWS]` 等数组。全局声明一个或两个该结构体实例（若需要双缓冲）。
+2. 重构 `compute_gradient`、`compute_residual`、`backtracking_line_search`、`projected_gradient_descent` 等函数，使其接收 `PGD_Work* ws` 参数，并使用 `ws` 内的数组存储临时数据；删除或替换掉所有 `calloc`/`free` 调用。这样能彻底消除中断中动态内存分配带来的堆碎片和 HardFault 风险。
+3. 调整 `MAX_ITER` 常量（如改为 50–100），在 `PGD.c` 中预计算 `P = M * M_pseudo`（6×6矩阵）以加速 `project_target`，并将 `project_target` 改写为直接乘以 `P`。
+4. 在 `PGD.c` 中加入 DWT 计数器实现的时间预算，限制外层迭代和回溯线搜索运行时间；当超时或残差未达标时返回伪逆解并执行兜底处理。
+
+### 2. 风扇分配流程拆分与双缓冲
+
+**涉及文件**：
+
+* 风扇控制相关文件 `Fan.c`/`Fan.h`（对应上传的 `58046e4f-7d83-44c1-8b8c-170153f8e786.c`）
+* 控制器输出结构体定义处（`ControllerOutput` 的头文件）
+* 定时器中断处理文件 `tim.c` 或 `xxx_it.c`
+
+**修改内容与目的**：
+
+1. 设计一个环形缓冲区或双缓冲结构存放 `ControllerOutput`。例如在 `Fan.h` 中新增：
+
+   ```c
+   typedef struct { ControllerOutput data; volatile bool valid; } CtrlBuf;
+   extern volatile CtrlBuf ctrl_buf[2];
+   extern volatile uint8_t ctrl_write_idx, ctrl_read_idx;
+   ```
+2. 在 TIM6 中断（或其他控制循环中断）中，完成姿态/位置控制计算后，不再调用 PGD；而是将计算得到的 `ControllerOutput` 写入缓冲区的写索引位置，并置 `valid = true`，然后更新 `ctrl_write_idx`。这样中断职责只限于快速采样和计算。
+3. 在主循环（`main.c` 或独立任务）中检查缓冲区的读索引位置 `valid` 标志，如果为真则拷贝出 `ControllerOutput`，清除 `valid` 并更新 `ctrl_read_idx`，随后调用 `Calculate_Fan_Speed()` 执行 PGD 求解和 PWM 更新。
+4. 将 `Calculate_Fan_Speed()` 函数的输入参数调整为指向缓冲区数据的指针，不再使用全局 `ctrl_output`。如有必要，将 `Fan_Rotation_Control()` 和 `Calculate_Fan_Speed()` 的封装解耦，便于在主循环中调用。
+
+目的在于将耗时的 PGD 运算移出高优先级的 TIM6 中断，避免中断阻塞其他外设和任务，并利用缓冲区实现生产者–消费者模型，确保每个控制指令只计算一次，避免重复或丢失。
+
+### 3. PGD 时间预算与兜底逻辑
+
+**涉及文件**：
+
+* `PGD.c`
+* 与风扇控制相关的函数（例如 `Calculate_Fan_Speed()`）
+
+**修改内容与目的**：
+
+1. 在 `PGD.c` 中添加 DWT 计数器初始化函数，定义时间预算（如 3–4 ms）。在 `projected_gradient_descent()` 的迭代循环和 `backtracking_line_search()` 中加入超时判断，超时则立刻退出。
+2. 在 `Calculate_Fan_Speed()` 中调用 PGD 求解后，对返回状态进行判断；若超时或残差超标，则使用预先计算的伪逆解 `x = clamp(M_pseudo*F_proj, 0, x_max)`，必要时回滚至上一次可行解，确保控制系统不会因 PGD 停滞而卡死。
+
+### 4. 日志输出与调试开关
+
+**涉及文件**：
+
+* `PGD.c`、`Fan.c`、`serial.c`
+
+**修改内容与目的**：
+
+1. 确保所有 `printf`/`USART_SendFormatted_DMA` 调用用宏 `#if SEND_DETAIL` 包裹，只有在调试模式下才启用。
+2. 在主循环中异步发送调试日志（使用 DMA），禁止在中断或 PGD 算法内部打印，避免阻塞。
+
+### 5. 看门狗配置及软复位机制
+
+**涉及文件**：
+
+* `main.c` 或专门的 `watchdog.c`
+* `stm32h7xx_hal_iwdg.c/h` 或 `stm32h7xx_ll_wwdg.c/h`
+
+**修改内容与目的**：
+
+1. 在系统初始化时配置独立看门狗(IWDG)的超时时间为 100–200 ms，并在控制循环结束（PGD 成功或兜底执行完毕）后刷新计数。这样只有当控制任务长时间无法完成时，IWDG 才会硬件重启系统。
+2. 如需更精细的软复位，在可用的情况下配置窗口看门狗(WWDG)的 Early Wakeup Interrupt(EWI)。当 PGD 运行时间超出预算或系统异常时，在 EWI 中终止当前 PGD、设定风扇为安全值并重新喂看门狗；若系统完全卡死，IWDG 将触发硬复位。
+3. 若未使用 WWDG，可用另一个定时器实现软件看门狗，在 PGD 超时或异常时重置算法状态并继续主循环。
+
+### 6. 预限制输入与其它小优化
+
+**涉及文件**：
+
+* `Fan.c`/控制器模块
+* `PGD.c`
+
+**修改内容与目的**：
+
+1. 在进入 PGD 之前，对明显超出机器人能力范围的总力/矩进行限幅，减少不必要的计算。
+2. 在 `Fan.c` 中按需调整 TIM6、USART 等外设的中断优先级，确保串口和 DMA 等关键外设不会被长时间阻塞。
+
+### 7. 验证与测试
+
+**涉及文件**：
+
+* 与调试相关的脚本或测试代码
+
+**修改内容与目的**：
+
+1. 在 TIM6 回调首尾翻转 GPIO，用示波器测量 ISR 时长，确保中断用时明显小于 10 ms 控制周期的 50%。
+2. 在主循环周期性输出 PGD 迭代次数、回溯次数、超时触发次数等统计信息，长期运行观察是否有 IWDG 重启或异常情况。
+
+---
+
+上述修改清单力求覆盖算法优化、代码结构重构和硬件可靠性保障等方面的需求。每个项目都有明确的目的：既减轻中断负担，又保证控制指令不丢失；既避免动态内存引发的系统崩溃，又通过看门狗机制应对意外故障。确认无误后，可按此清单逐项实施修改。

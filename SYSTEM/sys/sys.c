@@ -33,6 +33,14 @@ void MPU_Config_DMA_NC(void)
 	HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 }
 
+void DWT_Enable(void)
+{
+	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+	DWT->CYCCNT = 0;
+	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+}
+/* 在 main() 时钟配置后调用一次 DWT_Enable(); */
+
 // 时钟设置函数
 // Fvco=Fs*(plln/pllm);
 // Fsys=Fvco/pllp=Fs*(plln/(pllm*pllp));

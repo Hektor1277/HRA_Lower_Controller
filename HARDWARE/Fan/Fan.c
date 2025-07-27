@@ -41,10 +41,13 @@
 // 根据实验所测得数据:c_T = 4.375e-08, c_R =  235.1, ω_b = 589.2
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-// 定义风扇转速和占空比结构体
+// 定义控制器输入输出结构体
 extern ControllerInput ctrl_input;
 extern ControllerInput prev_ctrl_input;
 extern ControllerOutput ctrl_output;
+volatile CtrlBuf ctrl_buf[2] = {0};
+volatile uint8_t ctrl_w = 0, ctrl_r = 0;
+// 定义风扇转速和占空比结构体
 FanSpeed Fan_desire_Speed = {0};
 FanControl Fan_Control_duty_rate = {0};
 

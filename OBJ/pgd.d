@@ -98,8 +98,8 @@
 ..\obj\pgd.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h
 ..\obj\pgd.o: ..\CORE\core_cm7.h
 ..\obj\pgd.o: ..\SMC\Silde_Mode_Controller.h
+..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\obj\pgd.o: ..\SYSTEM\serial\serial.h
 ..\obj\pgd.o: ..\CORE\core_cm7.h
-..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 ..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

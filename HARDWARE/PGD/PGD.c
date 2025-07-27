@@ -1,6 +1,9 @@
 #include "PGD.h"
 #include "Fan.h"
 #include "serial.h"
+#include "stm32h7xx.h"
+
+PGD_Work pgd_ws; /* 全局唯一工作区 */
 
 // 硬编码的矩阵 M
 const double M[M_ROWS * M_COLS] = {
@@ -66,19 +69,6 @@ static void apply_constraints(double *x)
     }
 }
 
-// 内存分配检查函数
-static void *checked_calloc(size_t num, size_t size)
-{
-    void *ptr = calloc(num, size);
-    if (!ptr)
-    {
-        // 使用USART发送错误信息
-        USART_SendFormatted_DMA("Memory allocation failed\r\n");
-        return NULL;
-    }
-    return ptr;
-}
-
 // 投影操作：计算 F_proj = M * M_pseudo * F
 void project_target(const double *F, double *F_proj)
 {
@@ -98,46 +88,21 @@ void project_target(const double *F, double *F_proj)
 // 验证残差并打印详细信息
 int compute_residual(const double *F, const double *x, int status, int *accept_solution)
 {
-    double *Mx = (double *)calloc(M_ROWS, sizeof(double));
+    /* 1) Mx = M·x → 存入 pgd_ws.Mx */
+    compute_Mx(x, pgd_ws.Mx);
+
     double residual = 0.0;
-    int all_elements_within_tolerance = 1; // 用于标记是否所有元素都满足条件
-
-    if (!Mx)
-    {
-        USART_SendFormatted_DMA("Memory allocation failed for Mx.\r\n");
-        *accept_solution = 0;
-        return -1; // 表示错误
-    }
-
-    // 计算 Mx
-    compute_Mx(x, Mx);
+    int all_ok = 1; /* 10 % 容差用 */
 
 #if SEND_DETAIL
-    // 打印初始 F 和 PGD解计算得到的F = Mx
-    USART_SendFormatted_DMA("Original F:\r\n");
-    for (int i = 0; i < M_ROWS; i++)
-    {
-        USART_SendFormatted_DMA("%8.4f ", F[i]);
-    }
-    USART_SendFormatted_DMA("\r\n");
-
-    USART_SendFormatted_DMA("Computed Mx:\r\n");
-    for (int i = 0; i < M_ROWS; i++)
-    {
-        USART_SendFormatted_DMA("%8.4f ", Mx[i]);
-    }
-    USART_SendFormatted_DMA("\r\n");
+    USART_SendFormatted_DMA("\r\nResidual check:\r\n");
 #endif
-
-    // 打印每一项的残差
-#if SEND_DETAIL
-    USART_SendFormatted_DMA("Residual for each element (F[i] - Mx[i]):\r\n");
-#endif
-    for (int i = 0; i < M_ROWS; i++)
+    for (int i = 0; i < M_ROWS; ++i)
     {
-        double diff = F[i] - Mx[i];
+        double diff = F[i] - pgd_ws.Mx[i];
 #if SEND_DETAIL
-        USART_SendFormatted_DMA("Residual[%d]: %8.4f ", i, diff);
+        USART_SendFormatted_DMA("  [%d] F=%.4f  Mx=%.4f  diff=%.4f\r\n",
+                                i, F[i], pgd_ws.Mx[i], diff);
 #endif
         if (status == 1)
         {                            // F 处于列空间，使用严格阈值
@@ -148,13 +113,10 @@ int compute_residual(const double *F, const double *x, int status, int *accept_s
             double tolerance = fabs(F[i]) * 0.1; // 容差为初始 F 的 10%
             if (fabs(diff) > tolerance)
             {
-                all_elements_within_tolerance = 0; // 如果某个元素超出容差，标记为不接受
+                all_ok = 0; // 如果某个元素超出容差，标记为不接受
             }
         }
     }
-#if SEND_DETAIL
-    USART_SendFormatted_DMA("\r\n");
-#endif
 
     if (status == 1)
     {                              // F 处于列空间
@@ -165,37 +127,36 @@ int compute_residual(const double *F, const double *x, int status, int *accept_s
         if (residual < Res_TOL)
         {
 #if SEND_DETAIL
-            USART_SendFormatted_DMA("Residual is within tolerance.\r\n");
+            USART_SendFormatted_DMA("Residual is within tolerance. Solution accepted.\r\n");
 #endif
             *accept_solution = 1; // 接受解
         }
         else
         {
 #if SEND_DETAIL
-            USART_SendFormatted_DMA("Residual exceeds tolerance.\r\n");
+            USART_SendFormatted_DMA("Residual exceeds tolerance. Solution rejected.\r\n");
 #endif
             *accept_solution = 0; // 不接受解
         }
     }
     else if (status == 0)
     { // F 不处于列空间
-        if (all_elements_within_tolerance)
+        if (all_ok)
         {
 #if SEND_DETAIL
-            USART_SendFormatted_DMA("All elements are within 10%% tolerance.\r\n");
+            USART_SendFormatted_DMA("All elements are within 10%% tolerance. Solution accepted.\r\n");
 #endif
             *accept_solution = 1; // 接受解
         }
         else
         {
 #if SEND_DETAIL
-            USART_SendFormatted_DMA("Some elements exceed 10%% tolerance.\r\n");
+            USART_SendFormatted_DMA("Some elements exceed 10%% tolerance. Solution rejected.\r\n");
 #endif
             *accept_solution = 0; // 不接受解
         }
     }
 
-    free(Mx); // 释放动态内存
     return 0; // 表示成功
 }
 
@@ -255,91 +216,68 @@ int is_in_column_space(const double *F, const double *F_proj)
 // 计算梯度 g = -M^T * (F_proj - Mx)
 void compute_gradient(const double *F_proj, const double *x, double *g)
 {
-    double *Mx = (double *)calloc(M_ROWS, sizeof(double)); // 用于存储 Mx
-
-    // 计算 Mx
-    for (int i = 0; i < M_ROWS; i++)
+    // 1) Mx = M·x  存入工作区
+    for (int i = 0; i < M_ROWS; ++i)
     {
-        for (int j = 0; j < M_COLS; j++)
-        {
-            Mx[i] += M[i * M_COLS + j] * x[j];
-        }
+        double sum = 0.0;
+        for (int j = 0; j < M_COLS; ++j)
+            sum += M[i * M_COLS + j] * x[j];
+        pgd_ws.Mx[i] = sum;
     }
 
-    // 计算梯度 g = -M^T * (F_proj - Mx)
-    for (int j = 0; j < M_COLS; j++)
+    // 2) g = -Mᵀ(F_proj-Mx)
+    for (int j = 0; j < M_COLS; ++j)
     {
-        g[j] = 0.0;
-        for (int i = 0; i < M_ROWS; i++)
-        {
-            g[j] -= M[i * M_COLS + j] * (F_proj[i] - Mx[i]);
-        }
+        double acc = 0.0;
+        for (int i = 0; i < M_ROWS; ++i)
+            acc -= M[i * M_COLS + j] * (F_proj[i] - pgd_ws.Mx[i]);
+        g[j] = acc;
     }
-
-    free(Mx);
 }
 
 // 计算目标函数 f(x) = 0.5 * ||F_proj - Mx||^2
 double compute_objective(const double *F_proj, const double *x)
 {
-    double *Mx = (double *)checked_calloc(M_ROWS, sizeof(double));
-
-    compute_Mx(x, Mx);
-
+    /* 复用上一步 Mx ；若调用次序不保证，可再计算一次 */
     double f = 0.0;
-    for (int i = 0; i < M_ROWS; i++)
+    for (int i = 0; i < M_ROWS; ++i)
     {
-        double diff = F_proj[i] - Mx[i];
+        double diff = F_proj[i] - pgd_ws.Mx[i];
         f += diff * diff;
     }
-    free(Mx);
     return 0.5 * f;
 }
-
 // 动态步长：回溯线搜索
 double backtracking_line_search(const double *F_proj, const double *x, const double *g)
 {
-    double alpha = 1.0;  // 初始步长
-    double beta = 0.8;   // 步长缩小比例
-    double sigma = 1e-4; // Armijo 条件参数
-
-    double *x_new = (double *)checked_calloc(M_COLS, sizeof(double));
-
-    double f_old = compute_objective(F_proj, x);
-
+    double alpha = 1.0, beta = 0.8, sigma = 1e-4, f_old = compute_objective(F_proj, x);
+    int iter = 0;
     while (1)
     {
-        for (int i = 0; i < M_COLS; i++)
+        for (int i = 0; i < M_COLS; ++i)
         {
-            x_new[i] = x[i] - alpha * g[i];
+            pgd_ws.x_new[i] = x[i] - alpha * g[i];
         }
-
-        apply_constraints(x_new);
-
-        double f_new = compute_objective(F_proj, x_new);
-
-        double grad_dot = 0.0;
-        for (int i = 0; i < M_COLS; i++)
+        apply_constraints(pgd_ws.x_new);
+        double f_new = compute_objective(F_proj, pgd_ws.x_new);
+        double gd = 0.0;
+        for (int i = 0; i < M_COLS; ++i)
         {
-            grad_dot += g[i] * (x_new[i] - x[i]);
+            gd += g[i] * (pgd_ws.x_new[i] - x[i]);
         }
-
-        if (f_new <= f_old + sigma * alpha * grad_dot)
+        if (f_new <= f_old + sigma * alpha * gd)
         {
             break;
         }
-
         alpha *= beta;
-        if (alpha < 1e-8)
+        if (alpha < 1e-8 || ++iter > 10)
         {
 #if SEND_DETAIL
-            USART_SendFormatted_DMA("Step size too small, stopping line search.\r\n");
+            USART_SendFormatted_DMA("Step size too small or maximum iterations reached, stopping line search.\r\n");
 #endif
             break;
         }
     }
-
-    free(x_new);
     return alpha;
 }
 
@@ -347,67 +285,68 @@ double backtracking_line_search(const double *F_proj, const double *x, const dou
 // 投影梯度下降法
 void projected_gradient_descent(const double *F_proj, double *x)
 {
-    double *g = (double *)malloc(M_COLS * sizeof(double));
-    double *x_prev = (double *)malloc(M_COLS * sizeof(double)); // 用于存储上一轮的解
-    double f_old = compute_objective(F_proj, x);                // 上一轮目标函数值
+    uint32_t t0 = DWT->CYCCNT;
+    double *g = pgd_ws.g;
+    double *x_prev = pgd_ws.x_prev;
+    double f_old = compute_objective(F_proj, x);
     double grad_norm, max_update, delta_f;
 
-    for (int iter = 0; iter < MAX_ITER; iter++)
+    for (int iter = 0; iter < MAX_ITER; ++iter)
     {
-        // 保存当前解到 x_prev
-        for (int i = 0; i < M_COLS; i++)
+        if ((DWT->CYCCNT - t0) > PGD_BUDGET_CYCLES)
         {
+#if SEND_DETAIL
+            USART_SendFormatted_DMA("PGD timeout -> pseudo inverse\r\n");
+#endif
+            /* 兜底：伪逆 + 裁剪 */
+            for (int j = 0; j < M_COLS; ++j)
+            {
+                double s = 0.0;
+                for (int k = 0; k < M_ROWS; ++k)
+                    s += M_pseudo[j * M_ROWS + k] * F_proj[k];
+                x[j] = (s < 0) ? 0 : ((s > x_max) ? x_max : s);
+            }
+            break;
+        }
+        /* 备份 */
+        for (int i = 0; i < M_COLS; ++i)
             x_prev[i] = x[i];
-        }
-
-        // 计算梯度
+        /* 梯度 */
         compute_gradient(F_proj, x, g);
-
-        // 动态步长：回溯线搜索
+        /* 步长 */
         double alpha = backtracking_line_search(F_proj, x, g);
-
-        // 更新解 x = x - alpha * g
-        for (int i = 0; i < M_COLS; i++)
-        {
+        /* 更新 */
+        for (int i = 0; i < M_COLS; ++i)
             x[i] -= alpha * g[i];
-        }
-
-        // 投影到约束范围内
         apply_constraints(x);
 
-        // 计算梯度范数
+        /* grad_norm */
         grad_norm = 0.0;
-        for (int i = 0; i < M_COLS; i++)
-        {
+        for (int i = 0; i < M_COLS; ++i)
             grad_norm += g[i] * g[i];
-        }
         grad_norm = sqrt(grad_norm);
 
-        // 计算目标函数值变化
+        /* f_new / delta_f */
         double f_new = compute_objective(F_proj, x);
         delta_f = fabs(f_new - f_old);
         f_old = f_new;
 
-        // 计算解的最大更新量
+        /* max_update */
         max_update = 0.0;
-        for (int i = 0; i < M_COLS; i++)
+        for (int i = 0; i < M_COLS; ++i)
         {
-            double diff = fabs(x[i] - x_prev[i]);
-            if (diff > max_update)
-            {
-                max_update = diff;
-            }
+            double d = fabs(x[i] - x_prev[i]);
+            if (d > max_update)
+                max_update = d;
         }
 
-        // 输出调试信息
         if (iter % PRINT_INTERVAL == 0)
         {
 #if SEND_DETAIL
-            USART_SendFormatted_DMA("Iteration %d, Objective Value: %f, Grad Norm: %e, Max Update: %e, Step Size: %f\r\n",
+            USART_SendFormatted_DMA("Iter %d f=%f gn=%e du=%e a=%f\r\n",
                                     iter, f_new, grad_norm, max_update, alpha);
 #endif
         }
-
         // 早停条件
         if (grad_norm < 1e-6)
         {
@@ -416,14 +355,14 @@ void projected_gradient_descent(const double *F_proj, double *x)
 #endif
             break;
         }
-        if (delta_f < 1e-8)
+        else if (delta_f < 1e-8)
         {
 #if SEND_DETAIL
             USART_SendFormatted_DMA("Stopped at iteration %d due to small objective change: %e\r\n", iter, delta_f);
 #endif
             break;
         }
-        if (max_update < 1e-6)
+        else if (max_update < 1e-6)
         {
 #if SEND_DETAIL
             USART_SendFormatted_DMA("Stopped at iteration %d due to small update: %e\r\n", iter, max_update);
@@ -431,7 +370,4 @@ void projected_gradient_descent(const double *F_proj, double *x)
             break;
         }
     }
-
-    free(g);
-    free(x_prev);
 }

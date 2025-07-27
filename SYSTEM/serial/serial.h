@@ -8,8 +8,8 @@
  *      ▸ Call MX_USART_Init(230400, 230400);          // anywhere after HAL_Init()
  *      ▸ Nothing else required – callbacks & IRQs do the job.
  * =========================================================*/
-#ifndef SERIAL_IT_H
-#define SERIAL_IT_H
+#ifndef SERIAL_H
+#define SERIAL_H
 
 #include "stm32h7xx_hal.h"
 #include "stm32h7xx_hal_uart_ex.h"
@@ -134,4 +134,4 @@ static inline bool fifo_put_multi(const uint8_t *src, uint16_t n)
 
 //================ 内联函数 ================
 
-#endif /* SERIAL_IT_H */
+#endif /* SERIAL_H */

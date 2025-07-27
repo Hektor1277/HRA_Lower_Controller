@@ -2,6 +2,7 @@
 #define _FAN_H
 #include "sys.h"
 #include "Silde_Mode_Controller.h"
+#include <stdbool.h>
 
 // 风扇参数定义
 #define Fan_Tension_Coefficient 4.3882e-10 // 拉力系数c_T
@@ -74,6 +75,15 @@ typedef struct
     float control_RZ_p; // 标签RZ+风扇PWM占空比
     float control_RZ_n; // 标签RZ-风扇PWM占空比
 } FanControl;
+
+// 双缓冲结构
+typedef struct
+{
+    ControllerOutput data;
+    volatile bool valid;
+} CtrlBuf;
+extern volatile CtrlBuf ctrl_buf[2];
+extern volatile uint8_t ctrl_w, ctrl_r;
 
 extern FanSpeed Fan_desire_Speed;
 extern FanControl Fan_Control_duty_rate;
