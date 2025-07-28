@@ -3,7 +3,11 @@
 #include "serial.h"
 #include "stm32h7xx.h"
 
-PGD_Work pgd_ws; /* 全局唯一工作区 */
+PGD_Work pgd_ws;              /* 全局唯一工作区 */
+uint32_t pgd_timeout_cnt = 0; /* PGD 超时计数器 */
+uint32_t pgd_max_cycles = 0, pgd_acc_cycles = 0, pgd_cnt = 0;
+
+extern volatile uint8_t pgd_abort_flag;
 
 // 硬编码的矩阵 M
 const double M[M_ROWS * M_COLS] = {
@@ -270,7 +274,7 @@ double backtracking_line_search(const double *F_proj, const double *x, const dou
             break;
         }
         alpha *= beta;
-        if (alpha < 1e-8 || ++iter > 10)
+        if (alpha < 1e-8 || ++iter >= max_ls_iter)
         {
 #if SEND_DETAIL
             USART_SendFormatted_DMA("Step size too small or maximum iterations reached, stopping line search.\r\n");
@@ -285,7 +289,7 @@ double backtracking_line_search(const double *F_proj, const double *x, const dou
 // 投影梯度下降法
 void projected_gradient_descent(const double *F_proj, double *x)
 {
-    uint32_t t0 = DWT->CYCCNT;
+    uint32_t start = DWT->CYCCNT;
     double *g = pgd_ws.g;
     double *x_prev = pgd_ws.x_prev;
     double f_old = compute_objective(F_proj, x);
@@ -293,8 +297,20 @@ void projected_gradient_descent(const double *F_proj, double *x)
 
     for (int iter = 0; iter < MAX_ITER; ++iter)
     {
-        if ((DWT->CYCCNT - t0) > PGD_BUDGET_CYCLES)
+        // 检查是否触发软件看门狗
+        if (pgd_abort_flag)
         {
+#if SEND_DETAIL
+            USART_SendFormatted_DMA("PGD abort by soft-WDG\r\n");
+#endif
+            pgd_abort_flag = 0;
+            break; /* 立即退出 PGD */
+        }
+
+        // 检查是否超时
+        if (CYCLES_EXPIRED(DWT->CYCCNT, start, PGD_BUDGET_CYCLES)) // 超时判定
+        {
+            pgd_timeout_cnt++;
 #if SEND_DETAIL
             USART_SendFormatted_DMA("PGD timeout -> pseudo inverse\r\n");
 #endif

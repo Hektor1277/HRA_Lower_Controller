@@ -115,9 +115,7 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
 #if SEND_DETAIL
     USART_SendFormatted_DMA("]\r\n");
 #endif
-
     project_target(F_norm, F_proj); // 将归一化后的 F 向量投影至控制效率矩阵列空间
-
 #if SEND_DETAIL
     print_vector("Projected Target F_proj", F_proj, M_ROWS);
 #endif
@@ -129,8 +127,15 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
 #if SEND_DETAIL
     USART_SendFormatted_DMA("\r\nRunning Projected Gradient Descent...\r\n");
 #endif
+    uint32_t pgd_start = DWT->CYCCNT;
+
     projected_gradient_descent(F_proj, PGD_solution);
 
+    uint32_t dur = CYCLES_ELAPSED(DWT->CYCCNT, pgd_start);
+    if (dur > pgd_max_cycles)
+        pgd_max_cycles = dur;
+    pgd_acc_cycles += dur;
+    ++pgd_cnt;
     // Step 4: 计算解的残差, 并根据残差判断是否接受解
 #if SEND_DETAIL
     USART_SendFormatted_DMA("\r\nVerifying PGD Solution...\r\n");

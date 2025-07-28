@@ -102,7 +102,7 @@ void MX_USART_Init(uint32_t baud1, uint32_t baud2)
     gpio_init(GPIOA, GPIO_PIN_9, GPIO_PIN_10, GPIO_AF7_USART1);
     uart_basic(&huart1, USART1, baud1);
 
-    NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(3, 2, 1)); // 调试口 RX优先级 2,1
+    NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(3, 3, 1)); // 调试口 RX优先级 3,1
     NVIC_EnableIRQ(USART1_IRQn);
 
     HAL_UART_Receive_IT(&huart1, &rx1_byte, 1); /* RX 仍 IT */
@@ -129,7 +129,7 @@ void MX_USART_Init(uint32_t baud1, uint32_t baud2)
     HAL_DMA_Init(&hdma_usart1_tx);
     __HAL_LINKDMA(&huart1, hdmatx, hdma_usart1_tx);
 
-    NVIC_SetPriority(DMA2_Stream2_IRQn, NVIC_EncodePriority(3, 0, 1)); // 调试口 TX 完成优先级 3,1
+    NVIC_SetPriority(DMA2_Stream2_IRQn, NVIC_EncodePriority(3, 2, 1)); // 调试口 TX 完成优先级 2,1
     NVIC_EnableIRQ(DMA2_Stream2_IRQn);
 
     UART1_TXE_DISABLE(); /* 禁用 TXE 中断，DMA 传输时不需要 */

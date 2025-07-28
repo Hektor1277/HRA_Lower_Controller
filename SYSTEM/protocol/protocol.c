@@ -1,6 +1,9 @@
 #include "protocol.h"
 #include "serial.h"
 #include "Fan.h"
+#include "timer.h"
+#include "PGD.h"
+#include "WDG.h"
 #include <string.h>
 
 /* ============= 声明区 ==============*/
@@ -216,20 +219,35 @@ void send_info(UART_HandleTypeDef *huart)
 
     // 1) Bridge + Frame 系统状态, 错误计数 & 帧元数据
     off += snprintf(outbuf + off, OUT_SZ - off,
-                    "\r\n=================== Bridge Stats ===================\r\n"
+                    "\r\n=================== Bridge Status ===================\r\n"
                     "Frame Errors      : %lu\r\n"
                     "Data Anomalies    : %lu\r\n"
                     "Lost Packets      : %llu\r\n"
-                    "TX FIFO Drops     : %lu\r\n"
-                    "DMA Queue Drops   : %lu"
-                    "\r\n=================== Bridge Stats ===================\r\n"
+
+                    "\r\n=================== Bridge Status ===================\r\n"
                     "\r\n==================== Frame Meta ====================\r\n"
                     "Current Seq-ID    : %lu\r\n"
                     "Unix-time (ns)    : %llu\r\n"
                     "dt to prev (ms)   : %.3f\r\n"
                     "Seq Gap           : %lu"
                     "\r\n==================== Frame Meta ====================\r\n",
-                    frame_error_count, data_anomaly_count, lost_pkt_count, (unsigned long)fifo_overflow_count, (unsigned long)dma_fifo_overflow_count, (unsigned long)g_frame_seq_id, (unsigned long long)g_frame_time_ns, g_frame_latency, g_seq_gap);
+                    frame_error_count, data_anomaly_count, lost_pkt_count, (unsigned long)g_frame_seq_id, (unsigned long long)g_frame_time_ns, g_frame_latency, g_seq_gap);
+
+    uint32_t isr_avg = isr_acc / isr_cnt;
+    uint32_t pgd_avg = pgd_cnt ? pgd_acc_cycles / pgd_cnt : 0;
+    off += snprintf(outbuf + off, OUT_SZ - off,
+                    "\r\n=================== System Status ===================\r\n"
+                    "ISR max          : %lu\r\n"
+                    "ISR avg          : %lu\r\n"
+                    "ISR cnt          : %lu\r\n"
+                    "PGD max (cyc)   : %lu\r\n"
+                    "PGD avg (cyc)   : %lu\r\n"
+                    "PGD timeout        : %lu\r\n"
+                    "Soft resets      : %lu\r\n"
+                    "TX FIFO Drops     : %lu\r\n"
+                    "DMA Queue Drops   : %lu"
+                    "\r\n=================== System Status ===================\r\n",
+                    isr_max, isr_avg, isr_cnt, pgd_max_cycles, pgd_avg, pgd_timeout_cnt, sw_reset_cnt, (unsigned long)fifo_overflow_count, (unsigned long)dma_fifo_overflow_count);
 
 #if SEND_DETAIL
     // 2) Parsed Payload 解析后的数据

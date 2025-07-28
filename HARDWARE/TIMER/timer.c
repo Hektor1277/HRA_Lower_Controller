@@ -1,6 +1,8 @@
 #include "timer.h"
 #include "Silde_Mode_Controller.h"
 #include "Fan.h"
+#include "WDG.h"
+#include "PGD.h"
 #include "serial.h"
 #include <string.h>
 #include <math.h>
@@ -12,7 +14,8 @@ extern ControllerOutput ctrl_output;
 extern FanSpeed Fan_desire_Speed;
 extern FanControl Fan_Control_duty_rate;
 
-volatile uint8_t dbg_flag = 0; // 用于控制调试输出的标志位
+volatile uint8_t dbg_flag = 0;                  // 用于控制调试输出的标志位
+uint32_t isr_max = 0, isr_cnt = 0, isr_acc = 0; // 中断最大值、计数和累加
 
 // 定时器自动重装值arr和时钟预分频数psc
 uint16_t CTRL_ARR = ctrl_arr; // 运行模式控制周期时长为：Tout=((CTRL_ARR+1)*(CTRL_PSC+1))/Ft =10ms. Ft=定时器工作频率, 单位:Mhz; 调试模式为1000ms.
@@ -37,7 +40,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == (&htim6))
     {
-        dbg_flag = 1; // 定时器6中断标志位
+        dbg_flag = 1;        // 定时器6中断标志位
+        if (ctrl_abort_flag) // 如果控制器中断标志位被设置，直接返回
+        {
+            ctrl_abort_flag = 0;
+            return;
+        }
+
+        uint32_t isr_start = DWT->CYCCNT;
+
         // 定时器中断触发调用位置和姿态控制器计算控制输出
         Position_Controller(&ctrl_input, &ctrl_output);
         Attitude_Controller(&ctrl_input, &ctrl_output);
@@ -46,6 +57,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         ctrl_buf[ctrl_w].data = ctrl_output;
         ctrl_buf[ctrl_w].valid = true;
         ctrl_w ^= 1u; // 切换缓冲区写指针
+
+        uint32_t dur = CYCLES_ELAPSED(DWT->CYCCNT, isr_start);
+        if (dur > isr_max)
+            isr_max = dur;
+        isr_acc += dur;
+        ++isr_cnt;
     }
 }
 
@@ -74,7 +91,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
     if (htim->Instance == TIM6)
     {
         __HAL_RCC_TIM6_CLK_ENABLE();               // 使能 TIM6 时钟
-        HAL_NVIC_SetPriority(TIM6_DAC_IRQn, 0, 0); // 设置中断优先级，抢占优先级 0，子优先级 0
+        HAL_NVIC_SetPriority(TIM6_DAC_IRQn, 1, 0); // 设置中断优先级，抢占优先级 1，子优先级 0
         HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);         // 开启 TIM6 中断
     }
 }

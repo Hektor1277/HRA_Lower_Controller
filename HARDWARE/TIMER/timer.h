@@ -9,10 +9,11 @@
 #define pwm_arr 959   // PWM计数器自动重装载值
 #define pwm_psc 9     // PWM定时器分频
 
-extern volatile uint8_t dbg_flag; // 用于控制调试输出的标志位
+extern volatile uint8_t dbg_flag;          // 用于控制调试输出的标志位
+extern uint32_t isr_max, isr_cnt, isr_acc; // 中断最大值、计数和累加
 
 // 定时器自动重装值arr和时钟预分频数psc
-extern uint16_t CTRL_ARR; // 控制周期时长为：Tout=((CTRL_ARR+1)*(CTRL_PSC+1))/Ft =10ms. Ft=定时器工作频率, 单位:Mhz
+extern uint16_t CTRL_ARR; // 控制周期时长为：Tout=((CTRL_ARR+1)*(CTRL_PSC+1))/Ft =10ms. Ft=240 定时器工作频率, 单位:Mhz
 extern uint16_t CTRL_PSC;
 extern uint16_t PWM_ARR; // PWM输出频率为：Ft=((PWM_ARR+1)*(PWM_PSC+1))/Tout 25kHz.
 extern uint16_t PWM_PSC;

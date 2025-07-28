@@ -4,12 +4,13 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <float.h>
 
 // 矩阵的行列数（固定）
 #define M_ROWS 6
 #define M_COLS 12
-#define MAX_ITER 200
+
 #define Res_TOL 1e-2 // 残差阈值
 #define PRINT_INTERVAL 100
 #define x_max 0.21238888 // 解向量元素上界约束
@@ -18,7 +19,11 @@
 extern const double M[M_ROWS * M_COLS];
 extern const double M_pseudo[M_COLS * M_ROWS];
 
-#define PGD_BUDGET_CYCLES ((SystemCoreClock / 1000U) * 3) /* ≈ 3 ms */
+#define CYCLES_ELAPSED(now, start) ((uint32_t)((now) - (start)))                    // 环回安全计数差
+#define CYCLES_EXPIRED(now, start, budget) (CYCLES_ELAPSED(now, start) >= (budget)) // 判断是否超时
+#define PGD_BUDGET_CYCLES 2400000U                                                  //((480M / 1000) * 5) = 5 ms
+#define max_ls_iter 18                                                              // 回溯线搜索最大迭代次数
+#define MAX_ITER 90                                                                 // PGD最大迭代次数
 
 typedef struct // PGD 静态工作区
 {
@@ -29,6 +34,11 @@ typedef struct // PGD 静态工作区
 } PGD_Work;
 
 extern PGD_Work pgd_ws; // PGD.c 中定义
+
+extern uint32_t pgd_timeout_cnt;
+extern uint32_t pgd_max_cycles; /* 最大耗时 */
+extern uint32_t pgd_acc_cycles; /* 累加 */
+extern uint32_t pgd_cnt;        /* 计数 */
 
 // 函数声明
 void print_vector(const char *name, const double *vec, int size);                         // 打印向量

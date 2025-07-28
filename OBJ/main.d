@@ -105,3 +105,4 @@
 ..\obj\main.o: ..\SYSTEM\ringbuf\ringbuf.h
 ..\obj\main.o: ..\SYSTEM\delay\delay.h
 ..\obj\main.o: ..\HARDWARE\Fan\Fan.h
+..\obj\main.o: ..\HARDWARE\WDG\WDG.h

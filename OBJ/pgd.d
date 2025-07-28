@@ -3,13 +3,13 @@
 ..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 ..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 ..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
 ..\obj\pgd.o: ..\HARDWARE\Fan\Fan.h
 ..\obj\pgd.o: ..\SYSTEM\sys\sys.h
 ..\obj\pgd.o: ..\USER\stm32h7xx.h
 ..\obj\pgd.o: ..\USER\stm32h743xx.h
 ..\obj\pgd.o: ..\CORE\core_cm7.h
-..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 ..\obj\pgd.o: ..\CORE\cmsis_compiler.h
 ..\obj\pgd.o: ..\CORE\cmsis_armcc.h
 ..\obj\pgd.o: ..\USER\system_stm32h7xx.h

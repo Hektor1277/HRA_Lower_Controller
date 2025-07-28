@@ -6,6 +6,7 @@
 #include "Silde_Mode_Controller.h"
 #include "delay.h"
 #include "Fan.h"
+#include "WDG.h"
 #include <string.h>
 
 #define ENABLE_USART 1
@@ -24,7 +25,6 @@ int main(void)
     Stm32_Clock_Init(192, 5, 2, 2);       // 设置时钟
     delay_init(480);                      // 延时初始化
     DWT_Enable();                         // 启用 DWT 计数器
-    // SCB_DisableDCache();            // 关闭D-Cache
 
 #if ENABLE_USART
     MX_USART_Init(230400, 230400); // 初始化USART1和USART2
@@ -62,11 +62,22 @@ int main(void)
 
 #endif
 
+    // 所有外设初始化后再初始化看门狗并立即喂狗
+    IWDG_Init();                                // 初始化独立看门狗
+    SoftWDG_Init();                             // 初始化软件看门狗
+    IWDG_Kick();                                // 喂硬件看门狗
+    SoftWDG_Kick();                             // 喂软件看门狗
+    __HAL_TIM_ENABLE_IT(&htim7, TIM_IT_UPDATE); // 最后再开中断
+
     // 主循环
     while (1)
     {
 #if ENABLE_USART
         proto_poll(); // 解析并更新 ctrl_input
+
+        IWDG_Kick();    // 喂硬件看门狗
+        SoftWDG_Kick(); // 喂软件看门狗
+
 #if OPERATING_MODE
         if (ctrl_buf[ctrl_r].valid)
         {
@@ -81,6 +92,7 @@ int main(void)
             if (++report_tick >= REPORT_INTERVAL) // 每REPORT_INTERVAL次中断发送一次调试信息
             {
                 report_tick = 0;
+
                 send_info(&TERM_UART); // 在主循环打印调试信息
             }
         }

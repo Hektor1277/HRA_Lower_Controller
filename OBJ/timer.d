@@ -101,3 +101,7 @@
 ..\obj\timer.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\timer.o: ..\SMC\Silde_Mode_Controller.h
 ..\obj\timer.o: ..\HARDWARE\Fan\Fan.h
+..\obj\timer.o: ..\HARDWARE\WDG\WDG.h
+..\obj\timer.o: ..\HARDWARE\PGD\PGD.h
+..\obj\timer.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+..\obj\timer.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h

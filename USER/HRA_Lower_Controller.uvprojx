@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER, STM32H743xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE;..\USER;..\SMC;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\protocol;..\SYSTEM\serial;..\SYSTEM\ringbuf;..\HALLIB\STM32H7xx_HAL_Driver\Inc;..\HARDWARE\LED;..\HARDWARE\TIMER;..\HARDWARE\Fan;..\HARDWARE\PGD</IncludePath>
+              <IncludePath>..\CORE;..\USER;..\SMC;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\protocol;..\SYSTEM\serial;..\SYSTEM\ringbuf;..\HALLIB\STM32H7xx_HAL_Driver\Inc;..\HARDWARE\LED;..\HARDWARE\TIMER;..\HARDWARE\Fan;..\HARDWARE\PGD;..\HARDWARE\WDG</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -883,6 +883,11 @@
               <FileName>PGD.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\PGD\PGD.c</FilePath>
+            </File>
+            <File>
+              <FileName>WDG.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\WDG\WDG.c</FilePath>
             </File>
           </Files>
         </Group>
