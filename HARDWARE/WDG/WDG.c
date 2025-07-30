@@ -22,6 +22,7 @@ void SoftWDG_Init(void)
     htim7.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1; // 时钟分频因子
     HAL_TIM_Base_Init(&htim7);
     HAL_TIM_Base_Start(&htim7);
+    __HAL_TIM_SET_COUNTER(&htim7, 0); // 防止上电计数残留
     HAL_NVIC_SetPriority(TIM7_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(TIM7_IRQn);
 }

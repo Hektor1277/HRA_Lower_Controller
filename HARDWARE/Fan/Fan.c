@@ -61,6 +61,8 @@ extern TIM_OC_InitTypeDef TIM4_CHHandler; // 定时器4通道句柄
 extern TIM_OC_InitTypeDef TIM5_CHHandler; // 定时器5通道句柄
 extern TIM_OC_InitTypeDef TIM8_CHHandler; // 定时器8通道句柄
 
+uint32_t solution_accepted_cnt = 0; // 接受解计数
+
 // 定义底层风扇控制前向通道
 void Fan_Rotation_Control(ControllerOutput *output, FanSpeed *fan_speed, FanControl *duty_rate)
 {
@@ -82,13 +84,13 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
     //  对方程进行归一化, 使得求解数值稳定
     //  F/Fmax = (M / (Fmax * cT)) * (cT*ω)
     //  从output中取出期望F向量(6x1), 并进行归一化: Fx,Fy,Fz,Tphi,Ttheta,Tpsi
-    double F_origin[6];            // 从输出结构体中提取 F 向量
-    double F_norm[6];              // 归一化的 F 向量
-    double F_proj[6];              // 用于存储归一化后的 F 向量在控制效率矩阵列空间的投影
-    double PGD_solution[12] = {0}; // 用于存储 PGD 解
-    float de_norm_PGD[12] = {0};   // 用于存储反归一化后的 PGD 解
-    int F_status = 0;              // 存储 F 是否在列空间中的状态
-    int accept_solution = 0;       // 存储是否接受解的状态
+    double F_origin[6];                   // 从输出结构体中提取 F 向量
+    double F_norm[6];                     // 归一化的 F 向量
+    double F_proj[6];                     // 用于存储归一化后的 F 向量在控制效率矩阵列空间的投影
+    static double PGD_solution[12] = {0}; // 用于存储 PGD 解
+    float de_norm_PGD[12] = {0};          // 用于存储反归一化后的 PGD 解
+    int F_status = 0;                     // 存储 F 是否在列空间中的状态
+    int accept_solution = 0;              // 存储是否接受解的状态
 
 #if SEND_DETAIL
     USART_SendFormatted_DMA("PGD input Thrust: [%.5f, %.5f, %.5f]\r\n", output->thrust[0], output->thrust[1], output->thrust[2]);
@@ -98,16 +100,26 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
     for (int i = 0; i < 3; i++) // 从控制器输出合力中提取 F 向量
     {
         F_origin[i] = output->thrust[i];     // 单位N,取值范围[-0.4,0.4]
-        F_origin[i + 3] = output->torque[i]; // 单位N·m,取值范围[-0.06,0.06]
+        F_origin[i + 3] = output->torque[i]; // 单位N·m,取值范围[-0.0568,0.0568]
     }
 
 #if SEND_DETAIL
     USART_SendFormatted_DMA("PGD input F_norm:\r\n[");
 #endif
 
-    for (int i = 0; i < 6; i++) // 归一化 F 向量
+    /***********************************************************************
+     * 双极值归一化说明
+     *  1. 力 (Fx,Fy,Fz)   归一化因子：FMAX_FORCE = 2*FMAX  ≈ 0.40 N
+     *  2. 力矩(Tφ,Tθ,Tψ)  归一化因子：FMAX_TORQUE = 4*D*FMAX ≈ 0.0568 N·m
+     *
+     * 这样六维 F_norm 均落在 [-1,1]，PGD 目标函数的各分量权重相近，
+     * 既提升数值条件，也使残差阈值在力/力矩两类通道上具有一致物理意义。
+     * 反归一化仅作用于推力→转速的平方关系，与本缩放互不耦合。
+     **********************************************************************/
+
+    for (int i = 0; i < 6; i++) // 归一化 F 向量, 力/力矩分别除以各自极值，保证六维量纲一致
     {
-        F_norm[i] = F_origin[i] / (2 * FMAX); // 单位N,取值范围[-0.4,0.4] / (2 * FMAX) → [-1, 1]; 单位N·m,取值范围[-0.06,0.06] / (2 * FMAX) → [-0.15, 0.15]
+        F_norm[i] = F_origin[i] / (i < 3 ? (FMAX_FORCE) : (FMAX_TORQUE)); // 单位N,取值范围[-0.4,0.4] → [-1, 1]; 单位N·m,取值范围[-0.0568,0.0568] → [-1, 1]
 #if SEND_DETAIL
         USART_SendFormatted_DMA(" %.3f ", F_norm[i]);
 #endif
@@ -136,6 +148,7 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
         pgd_max_cycles = dur;
     pgd_acc_cycles += dur;
     ++pgd_cnt;
+
     // Step 4: 计算解的残差, 并根据残差判断是否接受解
 #if SEND_DETAIL
     USART_SendFormatted_DMA("\r\nVerifying PGD Solution...\r\n");
@@ -144,6 +157,7 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
 
     if (accept_solution) // 通过解的残差判断是否接受解, 并打印最终解向量 x
     {
+        solution_accepted_cnt++;
         Denormalize_solution(PGD_solution, de_norm_PGD);
         accept_PGD_solution(fan_speed, de_norm_PGD);
     }
@@ -151,7 +165,7 @@ void Calculate_Fan_Speed(ControllerOutput *output, FanSpeed *fan_speed)
 
 void accept_PGD_solution(FanSpeed *fan_speed, float *de_norm_PGD)
 {
-    // 若通过检验, 则接受 NNLS 解, 将反归一化后的PGD解存入fan_speed结构体
+    // 若通过检验, 则接受PGD解, 将反归一化后的PGD解存入fan_speed结构体
     fan_speed->omega_LX_p = de_norm_PGD[0];
     fan_speed->omega_LX_n = de_norm_PGD[1];
     fan_speed->omega_RX_p = de_norm_PGD[2];

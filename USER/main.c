@@ -62,12 +62,14 @@ int main(void)
 
 #endif
 
+#if OPERATING_MODE
     // 所有外设初始化后再初始化看门狗并立即喂狗
     IWDG_Init();                                // 初始化独立看门狗
     SoftWDG_Init();                             // 初始化软件看门狗
     IWDG_Kick();                                // 喂硬件看门狗
     SoftWDG_Kick();                             // 喂软件看门狗
     __HAL_TIM_ENABLE_IT(&htim7, TIM_IT_UPDATE); // 最后再开中断
+#endif
 
     // 主循环
     while (1)
@@ -75,10 +77,9 @@ int main(void)
 #if ENABLE_USART
         proto_poll(); // 解析并更新 ctrl_input
 
+#if OPERATING_MODE
         IWDG_Kick();    // 喂硬件看门狗
         SoftWDG_Kick(); // 喂软件看门狗
-
-#if OPERATING_MODE
         if (ctrl_buf[ctrl_r].valid)
         {
             ctrl_buf[ctrl_r].valid = false;

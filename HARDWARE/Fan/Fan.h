@@ -25,6 +25,12 @@
 #define TOLERANCE 1e-7    // 收敛阈值
 #define MAX_ITERATIONS 10 // 最大迭代次数
 
+// 双极值归一化(含安全系数)
+#define FMAX_FORCE 2 * FMAX * 1.1     // 单轴最大推力 (2*FMAX) * 1.1 (N)0.44
+#define FMAX_TORQUE 4 * D *FMAX * 1.1 // 单轴最大力矩 (4*D*FMAX) * 1.1 (N·m)0.0625
+
+extern uint32_t solution_accepted_cnt; // 接受解计数
+
 // 本课题机器人风扇参数, 数据由实验测得
 static const double c_T = Fan_Tension_Coefficient; // 拉力系数, 由于其值较大, 因此(1)的计算使用double以保证精度
 static const float c_R_H = HS_Slope;               //(2)式的计算使用float即可保证足够精度
@@ -34,11 +40,6 @@ static const float ω_b_M = MS_Intercept;
 static const float c_R_L = LS_Slope;
 static const float ω_b_L = LS_Intercept;
 static const double D_val = D;
-
-// // 参数定义
-// extern const double c_T; // 拉力系数, 由于其值较大, 因此(1)的计算使用double以保证精度
-// extern const float c_R;  //(2)式的计算使用float即可保证足够精度
-// extern const float ω_b;
 
 // 定义风扇转速结构体
 typedef struct
@@ -82,6 +83,7 @@ typedef struct
     ControllerOutput data;
     volatile bool valid;
 } CtrlBuf;
+
 extern volatile CtrlBuf ctrl_buf[2];
 extern volatile uint8_t ctrl_w, ctrl_r;
 

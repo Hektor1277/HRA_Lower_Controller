@@ -204,7 +204,7 @@ void parse_data(const uint8_t payload[72],
 // 发送调试信息
 void send_info(UART_HandleTypeDef *huart)
 {
-#define OUT_SZ 2048
+#define OUT_SZ 4096
     static char outbuf[OUT_SZ];
     int off = 0;
 
@@ -222,8 +222,7 @@ void send_info(UART_HandleTypeDef *huart)
                     "\r\n=================== Bridge Status ===================\r\n"
                     "Frame Errors      : %lu\r\n"
                     "Data Anomalies    : %lu\r\n"
-                    "Lost Packets      : %llu\r\n"
-
+                    "Lost Packets      : %llu"
                     "\r\n=================== Bridge Status ===================\r\n"
                     "\r\n==================== Frame Meta ====================\r\n"
                     "Current Seq-ID    : %lu\r\n"
@@ -237,17 +236,18 @@ void send_info(UART_HandleTypeDef *huart)
     uint32_t pgd_avg = pgd_cnt ? pgd_acc_cycles / pgd_cnt : 0;
     off += snprintf(outbuf + off, OUT_SZ - off,
                     "\r\n=================== System Status ===================\r\n"
-                    "ISR max          : %lu\r\n"
-                    "ISR avg          : %lu\r\n"
-                    "ISR cnt          : %lu\r\n"
-                    "PGD max (cyc)   : %lu\r\n"
-                    "PGD avg (cyc)   : %lu\r\n"
-                    "PGD timeout        : %lu\r\n"
-                    "Soft resets      : %lu\r\n"
-                    "TX FIFO Drops     : %lu\r\n"
-                    "DMA Queue Drops   : %lu"
+                    "ISR max               : %lu\r\n"
+                    "ISR avg               : %lu\r\n"
+                    "ISR cnt               : %lu\r\n"
+                    "Solution Accepted cnt : %lu\r\n"
+                    "PGD max (cyc)         : %lu\r\n"
+                    "PGD avg (cyc)         : %lu\r\n"
+                    "PGD timeout           : %lu\r\n"
+                    "Soft resets           : %lu\r\n"
+                    "TX FIFO Drops         : %lu\r\n"
+                    "DMA Queue Drops       : %lu"
                     "\r\n=================== System Status ===================\r\n",
-                    isr_max, isr_avg, isr_cnt, pgd_max_cycles, pgd_avg, pgd_timeout_cnt, sw_reset_cnt, (unsigned long)fifo_overflow_count, (unsigned long)dma_fifo_overflow_count);
+                    isr_max, isr_avg, isr_cnt, solution_accepted_cnt, pgd_max_cycles, pgd_avg, pgd_timeout_cnt, sw_reset_cnt, (unsigned long)fifo_overflow_count, (unsigned long)dma_fifo_overflow_count);
 
 #if SEND_DETAIL
     // 2) Parsed Payload 解析后的数据
