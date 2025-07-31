@@ -12,10 +12,11 @@ volatile uint32_t g_frame_seq_id = 0;
 volatile uint64_t g_frame_time_ns = 0;
 volatile float g_frame_latency = 0.f;
 volatile uint32_t g_seq_gap = 0;
+
 // 错误计数器
-volatile uint64_t lost_pkt_count = 0;
-volatile uint32_t frame_error_count = 0;
+volatile uint64_t lost_pkg_count = 0;
 volatile uint32_t data_anomaly_count = 0;
+volatile uint64_t crc_failed_count = 0; // CRC 校验未通过计数器
 // 数据帧状态标志
 bool frame_fault = false;       // 数据帧滤波标志位，0为正常，1为未通过滤波
 bool is_first_frame = true;     // 标志是否是第一次接收数据
@@ -31,16 +32,41 @@ ringbuf_t rb = {
 /* ============= 声明区 ==============*/
 
 /* ============= 工具函数 ==============*/
-// CRC
+// CRC计算函数
 static uint16_t crc16_be_acc(const uint8_t *p, uint16_t n)
 {
     uint16_t c = 0;
-    while (n)
+
+#if CRC_DEBUG_ENABLED
+    const uint8_t *orig_p = p;
+    uint16_t orig_n = n;
+
+    USART_SendFormatted_DMA("\r\n=== Lower CRC Debug ===\r\n");
+
+    // 显示后16字节数据（字节56-71，对应上位机的字节70-85）
+    USART_SendFormatted_DMA("CRC data (last 16 bytes): ");
+    for (int i = 56; i < 72 && i < n; i++)
     {
-        c += (uint16_t)(*p++) << 8 | *p++;
-        n -= 2;
+        USART_SendFormatted_DMA("%02X ", orig_p[i]);
     }
-    return c;
+    USART_SendFormatted_DMA("\r\n");
+
+    USART_SendFormatted_DMA("CRC calculation step by step (last 8 steps, bytes 56-71):\r\n");
+#endif
+
+    const uint8_t *temp_p = p;
+    uint16_t temp_n = n;
+    int step = 0;
+
+    while (temp_n >= 2 && step < 36) // crc calculation
+    {
+        uint16_t word = ((uint16_t)(*temp_p) << 8) | (uint16_t)(*(temp_p + 1));
+        c += word;
+        temp_p += 2;
+        temp_n -= 2;
+        step++;
+    }
+    return c; // 返回crc结果
 }
 
 // 初始化环形缓冲区
@@ -94,7 +120,9 @@ void proto_poll(void)
 
     while (TERM_UART.gState != HAL_UART_STATE_READY)
         ;
+#if SEND_DETAIL
     send_info(&TERM_UART); /* 只打印一次 */
+#endif
 #endif
 }
 
@@ -112,8 +140,10 @@ bool frame_extract(uint8_t payload[72], uint32_t *seq, uint64_t *ts)
         if (tmp[0] == FRAME_HEADER_1 && tmp[1] == FRAME_HEADER_2 &&
             tmp[88] == FRAME_FOOTER_1 && tmp[89] == FRAME_FOOTER_2)
         {
-            // 校验数据段：tmp[14] ~ tmp[85]，共 72 字节
+            // 提取数据帧 CRC 字节
             uint16_t expected = (tmp[86] << 8) | tmp[87];
+
+            // 计算 CRC, 从 tmp[14] 开始到 tmp[85] 结束, 共 72 字节
             uint16_t computed = crc16_be_acc(tmp + 14, 72);
 
 #if SEND_DETAIL
@@ -147,7 +177,7 @@ bool frame_extract(uint8_t payload[72], uint32_t *seq, uint64_t *ts)
             }
             else
             {
-                frame_error_count++;
+                crc_failed_count++;
             }
         }
         // 滑窗前移，容忍噪声字节
@@ -170,7 +200,7 @@ void parse_data(const uint8_t payload[72],
     else
     {
         g_seq_gap = (seq > g_frame_seq_id) ? seq - g_frame_seq_id - 1 : 0;
-        lost_pkt_count += g_seq_gap;
+        lost_pkg_count += g_seq_gap;
         g_frame_latency = (float)(unix_ns - g_frame_time_ns) / 1e6f; /* ms */
     }
     g_frame_seq_id = seq;
@@ -220,9 +250,10 @@ void send_info(UART_HandleTypeDef *huart)
     // 1) Bridge + Frame 系统状态, 错误计数 & 帧元数据
     off += snprintf(outbuf + off, OUT_SZ - off,
                     "\r\n=================== Bridge Status ===================\r\n"
-                    "Frame Errors      : %lu\r\n"
+                    "CRC Failed        : %llu\r\n"
+                    "Frame Rejected    : %lu\r\n"
                     "Data Anomalies    : %lu\r\n"
-                    "Lost Packets      : %llu"
+                    "Lost Packages     : %llu"
                     "\r\n=================== Bridge Status ===================\r\n"
                     "\r\n==================== Frame Meta ====================\r\n"
                     "Current Seq-ID    : %lu\r\n"
@@ -230,18 +261,18 @@ void send_info(UART_HandleTypeDef *huart)
                     "dt to prev (ms)   : %.3f\r\n"
                     "Seq Gap           : %lu"
                     "\r\n==================== Frame Meta ====================\r\n",
-                    frame_error_count, data_anomaly_count, lost_pkt_count, (unsigned long)g_frame_seq_id, (unsigned long long)g_frame_time_ns, g_frame_latency, g_seq_gap);
+                    (unsigned long long)crc_failed_count, (unsigned long)frame_rejected_count, (unsigned long)data_anomaly_count, (unsigned long long)lost_pkg_count, (unsigned long)g_frame_seq_id, (unsigned long long)g_frame_time_ns, g_frame_latency, (unsigned long)g_seq_gap);
 
     uint32_t isr_avg = isr_acc / isr_cnt;
     uint32_t pgd_avg = pgd_cnt ? pgd_acc_cycles / pgd_cnt : 0;
     off += snprintf(outbuf + off, OUT_SZ - off,
                     "\r\n=================== System Status ===================\r\n"
-                    "ISR max               : %lu\r\n"
-                    "ISR avg               : %lu\r\n"
+                    "ISR max time (cyc)    : %lu\r\n"
+                    "ISR avg time (cyc)    : %lu\r\n"
                     "ISR cnt               : %lu\r\n"
                     "Solution Accepted cnt : %lu\r\n"
-                    "PGD max (cyc)         : %lu\r\n"
-                    "PGD avg (cyc)         : %lu\r\n"
+                    "PGD max time (cyc)    : %lu\r\n"
+                    "PGD avg time (cyc)    : %lu\r\n"
                     "PGD timeout           : %lu\r\n"
                     "Soft resets           : %lu\r\n"
                     "TX FIFO Drops         : %lu\r\n"

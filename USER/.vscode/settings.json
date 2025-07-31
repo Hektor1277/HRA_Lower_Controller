@@ -10,6 +10,8 @@
         "math.h": "c",
         "serial.h": "c",
         "protocol.h": "c",
-        "sys.h": "c"
+        "sys.h": "c",
+        "stdbool.h": "c",
+        "string.h": "c"
     }
 }

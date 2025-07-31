@@ -49,9 +49,10 @@ extern PGD_Work pgd_ws; // PGD.c 中定义
 extern double pgd_last_solution[M_COLS];
 
 extern uint32_t pgd_timeout_cnt;
-extern uint32_t pgd_max_cycles; /* 最大耗时 */
-extern uint32_t pgd_acc_cycles; /* 累加 */
-extern uint32_t pgd_cnt;        /* 计数 */
+extern uint32_t pgd_max_cycles;                /* 最大耗时 */
+extern uint32_t pgd_acc_cycles;                /* 累加 */
+extern uint32_t pgd_cnt;                       /* 计数 */
+extern volatile uint32_t frame_rejected_count; // 帧错误计数器
 
 // 函数声明
 void print_vector(const char *name, const double *vec, int size);                         // 打印向量
