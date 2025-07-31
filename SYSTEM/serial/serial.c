@@ -99,7 +99,7 @@ void MX_USART_Init(uint32_t baud1, uint32_t baud2)
 #endif
 
     /* --- USART1 (调试口) --- */
-    gpio_init(GPIOA, GPIO_PIN_9, GPIO_PIN_10, GPIO_AF7_USART1);
+    gpio_init(GPIOA, GPIO_PIN_9, GPIO_PIN_10, GPIO_AF7_USART1); // PA9 TX, PA10 RX
     uart_basic(&huart1, USART1, baud1);
 
     NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(3, 3, 1)); // 调试口 RX优先级 3,1
@@ -136,7 +136,7 @@ void MX_USART_Init(uint32_t baud1, uint32_t baud2)
 #endif
 
     /* --- USART2 (数据口) --- */
-    gpio_init(GPIOA, GPIO_PIN_2, GPIO_PIN_3, GPIO_AF7_USART2);
+    gpio_init(GPIOA, GPIO_PIN_2, GPIO_PIN_3, GPIO_AF7_USART2); // PA2 TX, PA3 RX
     uart_basic(&huart2, USART2, baud2);
 
     NVIC_SetPriority(USART2_IRQn, NVIC_EncodePriority(3, 1, 0)); // 数据口优先级 1,0
@@ -342,7 +342,7 @@ void USART2_IRQHandler(void)
             proto_ringbuf_push(&rx2_dma_buf[dma_tail], len);
 
 #if DEBUG_ECHO
-            /* [FIX-3] 如果你打开回显，这里使用批量入队 API */
+            /* 如果打开回显，这里使用批量入队 API */
             if (!fifo_put_multi(&rx2_dma_buf[dma_tail], len))
             {
                 fifo_overflow_count += len;

@@ -4,8 +4,9 @@
 #include "stm32h7xx.h"
 #include <string.h>
 
-PGD_Work pgd_ws;              /* 全局唯一工作区 */
-uint32_t pgd_timeout_cnt = 0; /* PGD 超时计数器 */
+PGD_Work pgd_ws;                            /* 全局唯一工作区 */
+uint32_t pgd_timeout_cnt = 0;               /* PGD 超时计数器 */
+volatile uint32_t frame_rejected_count = 0; /* 帧错误计数器 */
 uint32_t pgd_max_cycles = 0, pgd_acc_cycles = 0, pgd_cnt = 0;
 double pgd_last_solution[M_COLS] = {0};
 
@@ -152,6 +153,7 @@ int compute_residual(const double *F, const double *x, int status, int *accept_s
 #if SEND_DETAIL
             USART_SendFormatted_DMA("Residual exceeds tolerance. Solution rejected.\r\n");
 #endif
+            frame_rejected_count++;
             *accept_solution = 0; // 不接受解
         }
     }
@@ -169,6 +171,7 @@ int compute_residual(const double *F, const double *x, int status, int *accept_s
 #if SEND_DETAIL
             USART_SendFormatted_DMA("Some elements exceed 10%% tolerance. Solution rejected.\r\n");
 #endif
+            frame_rejected_count++;
             *accept_solution = 0; // 不接受解
         }
     }

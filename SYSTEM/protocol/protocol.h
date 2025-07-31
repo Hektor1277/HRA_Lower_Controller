@@ -33,15 +33,20 @@ extern volatile uint64_t g_frame_time_ns; /* 最近一帧的 unix ns */
 extern volatile float g_frame_latency;    /* 最近一帧的延迟（ms） */
 extern volatile uint32_t g_seq_gap;       /* 最近两帧的序号间隔（gap） */
 extern volatile uint32_t report_tick;     /* 报告周期触发计时器 */
+
 // 错误计数器
-extern volatile uint32_t frame_error_count;  // 帧错误计数器
+
 extern volatile uint32_t data_anomaly_count; // 数据帧异常计数器
-extern volatile uint64_t lost_pkt_count;     // 丢包计数器
+extern volatile uint64_t lost_pkg_count;     // 丢包计数器
+extern volatile uint64_t crc_failed_count;   // CRC 校验未通过计数器
+
 // 过滤阈值
 extern const float THRESHOLD; /* =120.0f */
 // 状态标志
 extern bool frame_fault;
 extern bool is_first_frame;
+
+#define CRC_DEBUG_ENABLED 0 // 设置为1启用CRC调试信息，设置为0关闭
 //================== 声明区 =================
 
 //============= 对上位机的业务 API ==============
