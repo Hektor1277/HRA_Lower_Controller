@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\HRA_Lower_Controller.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\HRA_Lower_Controller.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Wed Jul 30 23:54:07 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Sun Sep 07 18:01:55 2025
 <BR><P>
 <H3>Maximum Stack Usage =        484 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -831,8 +831,8 @@ Global Symbols
 <LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;accept_PGD_solution
 <LI><a href="#[bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
-<BR>[Called By]<UL><LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-<LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Fan_Rotation_Control
+<BR>[Called By]<UL><LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Fan_Rotation_Control
+<LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[bb]"></a>Calculate_Single_Duty</STRONG> (Thumb, 112 bytes, Stack size 0 bytes, fan.o(i.Calculate_Single_Duty))
@@ -899,8 +899,8 @@ Global Symbols
 <P><STRONG><a name="[c9]"></a>HAL_DMA_Init</STRONG> (Thumb, 512 bytes, Stack size 24 bytes, stm32h7xx_hal_dma.o(i.HAL_DMA_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = HAL_DMA_Init &rArr; DMA_CalcDMAMUXRequestGenBaseAndMask
 </UL>
-<BR>[Calls]<UL><LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
-<LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DMA_CheckFifoParam
+<BR>[Calls]<UL><LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DMA_CheckFifoParam
+<LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 <LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DMA_CalcDMAMUXRequestGenBaseAndMask
 <LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DMA_CalcDMAMUXChannelBaseAndMask
 <LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DMA_CalcBaseAndBitshift
@@ -1041,8 +1041,8 @@ Global Symbols
 <P><STRONG><a name="[de]"></a>HAL_RCC_ClockConfig</STRONG> (Thumb, 574 bytes, Stack size 16 bytes, stm32h7xx_hal_rcc.o(i.HAL_RCC_ClockConfig))
 <BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = HAL_RCC_ClockConfig &rArr; HAL_InitTick &rArr; HAL_NVIC_SetPriority &rArr; __NVIC_SetPriority
 </UL>
-<BR>[Calls]<UL><LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
-<LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_InitTick
+<BR>[Calls]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_InitTick
+<LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 <LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetSysClockFreq
 </UL>
 <BR>[Called By]<UL><LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stm32_Clock_Init
@@ -1159,14 +1159,14 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[ee]"></a>HAL_TIM_PWM_ConfigChannel</STRONG> (Thumb, 372 bytes, Stack size 16 bytes, stm32h7xx_hal_tim.o(i.HAL_TIM_PWM_ConfigChannel))
-<BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = HAL_TIM_PWM_ConfigChannel &rArr; TIM_OC4_SetConfig
+<BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = HAL_TIM_PWM_ConfigChannel &rArr; TIM_OC6_SetConfig
 </UL>
-<BR>[Calls]<UL><LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC4_SetConfig
+<BR>[Calls]<UL><LI><a href="#[f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC6_SetConfig
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC5_SetConfig
+<LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC4_SetConfig
 <LI><a href="#[f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC3_SetConfig
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC2_SetConfig
 <LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC1_SetConfig
-<LI><a href="#[f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC6_SetConfig
-<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC5_SetConfig
 </UL>
 <BR>[Called By]<UL><LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWM_Init
 </UL>
@@ -1388,10 +1388,10 @@ Global Symbols
 <P><STRONG><a name="[fa]"></a>Position_Controller</STRONG> (Thumb, 764 bytes, Stack size 152 bytes, silde_mode_controller.o(i.Position_Controller))
 <BR><BR>[Stack]<UL><LI>Max Depth = 252<LI>Call Chain = Position_Controller &rArr; update_Rsb &rArr; __hardfp_sinf &rArr; __mathlib_rredf2
 </UL>
-<BR>[Calls]<UL><LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sat
+<BR>[Calls]<UL><LI><a href="#[120]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_Rsb
+<LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sat
 <LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;custom_fmin
 <LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;custom_fmax
-<LI><a href="#[120]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_Rsb
 </UL>
 <BR>[Called By]<UL><LI><a href="#[ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PeriodElapsedCallback
 </UL>
@@ -1696,8 +1696,8 @@ Global Symbols
 <P><STRONG><a name="[145]"></a>backtracking_line_search</STRONG> (Thumb, 242 bytes, Stack size 72 bytes, pgd.o(i.backtracking_line_search))
 <BR><BR>[Stack]<UL><LI>Max Depth = 108<LI>Call Chain = backtracking_line_search &rArr; compute_objective &rArr; compute_Mx
 </UL>
-<BR>[Calls]<UL><LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;compute_objective
-<LI><a href="#[147]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;apply_constraints
+<BR>[Calls]<UL><LI><a href="#[147]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;apply_constraints
+<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;compute_objective
 </UL>
 <BR>[Called By]<UL><LI><a href="#[c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;projected_gradient_descent
 </UL>
@@ -1720,8 +1720,8 @@ Global Symbols
 <P><STRONG><a name="[c1]"></a>compute_residual</STRONG> (Thumb, 226 bytes, Stack size 32 bytes, pgd.o(i.compute_residual))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = compute_residual &rArr; __hardfp_sqrt
 </UL>
-<BR>[Calls]<UL><LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_sqrt
-<LI><a href="#[148]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;compute_Mx
+<BR>[Calls]<UL><LI><a href="#[148]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;compute_Mx
+<LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_sqrt
 </UL>
 <BR>[Called By]<UL><LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Calculate_Fan_Speed
 </UL>
@@ -1797,12 +1797,12 @@ Global Symbols
 <P><STRONG><a name="[c0]"></a>projected_gradient_descent</STRONG> (Thumb, 696 bytes, Stack size 96 bytes, pgd.o(i.projected_gradient_descent))
 <BR><BR>[Stack]<UL><LI>Max Depth = 204<LI>Call Chain = projected_gradient_descent &rArr; backtracking_line_search &rArr; compute_objective &rArr; compute_Mx
 </UL>
-<BR>[Calls]<UL><LI><a href="#[fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
+<BR>[Calls]<UL><LI><a href="#[147]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;apply_constraints
+<LI><a href="#[fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 <LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_sqrt
 <LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;compute_objective
 <LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;compute_gradient
 <LI><a href="#[145]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;backtracking_line_search
-<LI><a href="#[147]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;apply_constraints
 </UL>
 <BR>[Called By]<UL><LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Calculate_Fan_Speed
 </UL>
@@ -2022,8 +2022,8 @@ Local Symbols
 <P><STRONG><a name="[9a]"></a>UART_DMAError</STRONG> (Thumb, 92 bytes, Stack size 16 bytes, stm32h7xx_hal_uart.o(i.UART_DMAError))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = UART_DMAError &rArr; HAL_UART_ErrorCallback
 </UL>
-<BR>[Calls]<UL><LI><a href="#[fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
-<LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_GetError
+<BR>[Calls]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_GetError
+<LI><a href="#[fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
 <LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_EndTxTransfer
 <LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_EndRxTransfer
 </UL>
