@@ -14,9 +14,9 @@ volatile float g_frame_latency = 0.f;
 volatile uint32_t g_seq_gap = 0;
 
 // 错误计数器
-volatile uint64_t lost_pkg_count = 0;
-volatile uint32_t data_anomaly_count = 0;
-volatile uint64_t crc_failed_count = 0; // CRC 校验未通过计数器
+volatile uint64_t lost_pkg_count = 0;     // 丢包计数器
+volatile uint32_t data_anomaly_count = 0; // 数据异常计数器
+volatile uint64_t crc_failed_count = 0;   // CRC 校验未通过计数器
 // 数据帧状态标志
 bool frame_fault = false;       // 数据帧滤波标志位，0为正常，1为未通过滤波
 bool is_first_frame = true;     // 标志是否是第一次接收数据
