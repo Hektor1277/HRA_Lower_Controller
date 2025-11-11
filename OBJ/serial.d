@@ -96,6 +96,7 @@
 ..\obj\serial.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 ..\obj\serial.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\serial.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+..\obj\serial.o: ..\SYSTEM\config\config.h
 ..\obj\serial.o: ..\SYSTEM\protocol\protocol.h
 ..\obj\serial.o: ..\SYSTEM\ringbuf\ringbuf.h
 ..\obj\serial.o: ..\SMC\Silde_Mode_Controller.h

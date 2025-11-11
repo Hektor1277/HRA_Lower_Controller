@@ -2,7 +2,6 @@
  *  serial.c  ——  实现文件
  *  HAL v1.8.x  •  Cortex-M7  •  STM32H7xx
  **************************************************************************/
-
 #include "serial.h"
 #include "protocol.h"
 #if USE_FREERTOS

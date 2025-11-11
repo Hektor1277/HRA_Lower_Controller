@@ -100,6 +100,7 @@
 ..\obj\main.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 ..\obj\main.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\main.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+..\obj\main.o: ..\SYSTEM\config\config.h
 ..\obj\main.o: ..\SMC\Silde_Mode_Controller.h
 ..\obj\main.o: ..\SYSTEM\protocol\protocol.h
 ..\obj\main.o: ..\SYSTEM\ringbuf\ringbuf.h

@@ -5,6 +5,8 @@
 ..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 ..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 ..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
+..\obj\pgd.o: ..\SYSTEM\config\config.h
+..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\obj\pgd.o: ..\HARDWARE\Fan\Fan.h
 ..\obj\pgd.o: ..\SYSTEM\sys\sys.h
 ..\obj\pgd.o: ..\USER\stm32h7xx.h
@@ -98,7 +100,6 @@
 ..\obj\pgd.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h
 ..\obj\pgd.o: ..\CORE\core_cm7.h
 ..\obj\pgd.o: ..\SMC\Silde_Mode_Controller.h
-..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\obj\pgd.o: ..\SYSTEM\serial\serial.h
 ..\obj\pgd.o: ..\CORE\core_cm7.h
 ..\obj\pgd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h

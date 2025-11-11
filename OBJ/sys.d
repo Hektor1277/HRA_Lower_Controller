@@ -98,3 +98,4 @@
 ..\obj\sys.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 ..\obj\sys.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\sys.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+..\obj\sys.o: ..\SYSTEM\config\config.h

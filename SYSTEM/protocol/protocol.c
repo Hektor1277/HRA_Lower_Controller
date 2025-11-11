@@ -18,9 +18,9 @@ volatile uint64_t lost_pkg_count = 0;     // 丢包计数器
 volatile uint32_t data_anomaly_count = 0; // 数据异常计数器
 volatile uint64_t crc_failed_count = 0;   // CRC 校验未通过计数器
 // 数据帧状态标志
-bool frame_fault = false;       // 数据帧滤波标志位，0为正常，1为未通过滤波
-bool is_first_frame = true;     // 标志是否是第一次接收数据
-const float THRESHOLD = 120.0f; // 过滤阈值
+bool frame_fault = false;   // 数据帧滤波标志位，0为正常，1为未通过滤波
+bool is_first_frame = true; // 标志是否是第一次接收数据
+
 // 1024 B 环形缓冲，本身存在 D2 non-cache 区域
 static uint8_t proto_mem[RX2_DMA_SZ] __attribute__((section(".dma_nc")));
 ringbuf_t rb = {
@@ -39,7 +39,7 @@ static uint16_t crc16_be_acc(const uint8_t *p, uint16_t n)
 
 #if CRC_DEBUG_ENABLED
     const uint8_t *orig_p = p;
-    uint16_t orig_n = n;
+    // uint16_t orig_n = n;
 
     USART_SendFormatted_DMA("\r\n=== Lower CRC Debug ===\r\n");
 
@@ -144,6 +144,8 @@ bool frame_extract(uint8_t payload[72], uint32_t *seq, uint64_t *ts)
             uint16_t expected = (tmp[86] << 8) | tmp[87];
 
             // 计算 CRC, 从 tmp[14] 开始到 tmp[85] 结束, 共 72 字节
+            // 计算数据帧CRC，则从第15字节（索引14）开始，到第86字节（索引85）
+            // 若包含帧序号与时间戳，则从第2字节开始（索引2）
             uint16_t computed = crc16_be_acc(tmp + 14, 72);
 
 #if SEND_DETAIL
@@ -193,17 +195,25 @@ void parse_data(const uint8_t payload[72],
                 ControllerInput *prev_ctrl_input)
 {
     /* 1) 延迟 & 丢包统计 */
+    // 这一部分代码用于统计数据帧的传输延迟和丢包情况
     if (is_first_frame)
     {
-        is_first_frame = false;
+        // 如果这是接收到的第一帧数据
+        is_first_frame = false; // 将首次接收标志设置为false，表示已不是第一帧
     }
     else
     {
+        // 如果不是第一帧，则进行丢包和延迟统计
+        // 计算序列号间隔：如果当前序列号大于上一帧序列号，则计算中间丢失的包数量，否则为0
         g_seq_gap = (seq > g_frame_seq_id) ? seq - g_frame_seq_id - 1 : 0;
+        // 累加丢包计数器，将本次检测到的丢包数加入总丢包计数
         lost_pkg_count += g_seq_gap;
+        // 计算帧传输延迟（毫秒）：当前时间戳减去上一帧时间戳，并转换为毫秒单位
         g_frame_latency = (float)(unix_ns - g_frame_time_ns) / 1e6f; /* ms */
     }
+    // 更新全局帧序列号变量，保存当前帧的序列号供下一帧比较使用
     g_frame_seq_id = seq;
+    // 更新全局时间戳变量，保存当前帧的时间戳供下一帧计算延迟使用
     g_frame_time_ns = unix_ns;
 
     /* 2) 72 B→ControllerInput (12×vec3) */
@@ -227,6 +237,41 @@ void parse_data(const uint8_t payload[72],
             dst[k] = val;
         }
     }
+
+    if (current_robot_config == 0) // 机器人构型为地面实验（3DOF）时
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            // 将z轴期望位置、速度、加速度设为0
+            ctrl_input->desired_position[2] = 0;
+            ctrl_input->desired_velocity[2] = 0;
+            ctrl_input->desired_acceleration[2] = 0;
+
+            // 将z轴实际位置、速度、加速度设为0
+            ctrl_input->position[2] = 0;
+            ctrl_input->velocity[2] = 0;
+            ctrl_input->acceleration[2] = 0;
+
+            // 将期望phi, theta设为0
+            ctrl_input->desired_angles[0] = 0;
+            ctrl_input->desired_angular_velocity[0] = 0;
+            ctrl_input->desired_angular_acceleration[0] = 0;
+
+            ctrl_input->desired_angles[1] = 0;
+            ctrl_input->desired_angular_velocity[1] = 0;
+            ctrl_input->desired_angular_acceleration[1] = 0;
+
+            // 将实际phi, theta设为0
+            ctrl_input->angles[0] = 0;
+            ctrl_input->angular_velocity[0] = 0;
+            ctrl_input->angular_acceleration[0] = 0;
+
+            ctrl_input->angles[1] = 0;
+            ctrl_input->angular_velocity[1] = 0;
+            ctrl_input->angular_acceleration[1] = 0;
+        }
+    }
+
     memcpy(prev_ctrl_input, ctrl_input, sizeof(ControllerInput));
     frame_fault = false;
 }
@@ -287,13 +332,13 @@ void send_info(UART_HandleTypeDef *huart)
                     "Desired Pos : %.3f, %.3f, %.3f\r\n"
                     "Desired Vel : %.3f, %.3f, %.3f\r\n"
                     "Desired Acc : %.3f, %.3f, %.3f\r\n"
-                    "Desired Ang : %.3f, %.3f, %.3f\r\n"
+                    "Desired Ang     : %.3f, %.3f, %.3f\r\n"
                     "Desired Ang Vel : %.3f, %.3f, %.3f\r\n"
                     "Desired Ang Acc : %.3f, %.3f, %.3f\r\n"
-                    "Position : %.3f, %.3f, %.3f\r\n"
-                    "Velocity : %.3f, %.3f, %.3f\r\n"
+                    "Position     : %.3f, %.3f, %.3f\r\n"
+                    "Velocity     : %.3f, %.3f, %.3f\r\n"
                     "Acceleration : %.3f, %.3f, %.3f\r\n"
-                    "Angles : %.3f, %.3f, %.3f\r\n"
+                    "Angles      : %.3f, %.3f, %.3f\r\n"
                     "Angular Vel : %.3f, %.3f, %.3f\r\n"
                     "Angular Acc : %.3f, %.3f, %.3f"
                     "\r\n================== Parsed Payload ==================\r\n",

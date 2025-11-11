@@ -7,6 +7,7 @@
 #include "delay.h"
 #include "Fan.h"
 #include "WDG.h"
+#include "config.h"
 #include <string.h>
 
 #define ENABLE_USART 1

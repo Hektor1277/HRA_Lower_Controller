@@ -22,20 +22,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
-
-//================== 系统模式选择 ==================
-// 0 = 调试模式:   系统低频运行，用于系统调试，此时发送全部调试信息
-// 1 = 运行模式:   系统高频运行，用于实际控制，仅发送高层信息
-#define OPERATING_MODE 1 // 系统运行模式切换标志位, 0=调试模式, 1=运行模式
-#define SEND_DETAIL 0    // 调试模式下发送详细调试信息 (!OPERATING_MODE)
-#define DEBUG_ECHO 0     // 可选调试：1=回显 USART2 RX 原始字节到调试口；0=完全关闭回显
-//=================================================
-
-//================ DMA配置区 ======================
-#define USE_DMA 1        /* 0=全部 IT，1=USART2 用 DMA RX */
-#define USE_FREERTOS 0   /* 1=在 ISR 中使用 FreeRTOS API */
-#define RX2_DMA_SZ 1024u /* 缓冲区扩大至 1024 (32B 对齐)   */
-//================================================
+#include "config.h"
 
 //================ 句柄 & 统计量 ================
 extern UART_HandleTypeDef huart1;
@@ -44,6 +31,7 @@ extern UART_HandleTypeDef huart2;
 extern DMA_HandleTypeDef hdma_usart1_tx;
 extern DMA_HandleTypeDef hdma_usart2_rx;
 #endif
+
 #define TERM_UART huart1 // 调试接口，发送调试信息并接收PC 指令，IT RX + DMA TX */
 #define DATA_UART huart2 // 数据接口，接收高频数据帧，DMA RX ONLY   */
 

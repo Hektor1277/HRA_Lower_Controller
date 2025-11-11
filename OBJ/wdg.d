@@ -95,4 +95,10 @@
 ..\obj\wdg.o: ..\SYSTEM\sys\sys.h
 ..\obj\wdg.o: ..\CORE\core_cm7.h
 ..\obj\wdg.o: ..\SMC\Silde_Mode_Controller.h
+..\obj\wdg.o: ..\SYSTEM\config\config.h
 ..\obj\wdg.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+..\obj\wdg.o: ..\SYSTEM\serial\serial.h
+..\obj\wdg.o: ..\CORE\core_cm7.h
+..\obj\wdg.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
+..\obj\wdg.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+..\obj\wdg.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h

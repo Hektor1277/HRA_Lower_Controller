@@ -6,20 +6,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <float.h>
-
-// 矩阵的行列数（固定）
-#define M_ROWS 6
-#define M_COLS 12
-
-// 阈值
-#define PROJ_ERR_TOL 1e-5
-#define PGD_RES_TOL 5e-3
-#define BTL_MIN_ALPHA 1e-4
-#define PGD_GRAD_TOL 1e-6
-#define PGD_OBJ_TOL 1e-7
-#define PGD_UPD_TOL 1e-6
-
-#define x_max 0.21238888 // 解向量元素上界约束
+#include "config.h"
 
 // 硬编码的矩阵 M 和伪逆矩阵 M_pseudo
 extern const double M[M_ROWS * M_COLS];
@@ -27,15 +14,7 @@ extern const double M_pseudo[M_COLS * M_ROWS];
 
 #define CYCLES_ELAPSED(now, start) ((uint32_t)((now) - (start)))                    // 环回安全计数差
 #define CYCLES_EXPIRED(now, start, budget) (CYCLES_ELAPSED(now, start) >= (budget)) // 判断是否超时
-#define PGD_BUDGET_CYCLES 2400000U                                                  //((480M / 1000) * 5) = 2400000 = 5 ms
-#define PGD_MAX_ITER 180                                                            // PGD最大迭代次数
 
-// 早停 / 步长刷新判据
-#define PGD_STALL_ITERS 2    // 连续多少次认为“停滞”
-#define PGD_DF_RATIO_THR 0.4 // Δf 相对下降不足 40 % 视为停滞
-#define PGD_LS_MAX 15        // 固定线搜索最大步数
-#define PGD_LS_BETA 0.8      // 衰减因子 β
-#define PGD_HOT_START 1      // 打开热启动：用上一帧解作初值
 
 typedef struct // PGD 静态工作区
 {

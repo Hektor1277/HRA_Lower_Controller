@@ -3,35 +3,15 @@
 #include "sys.h"
 #include "Silde_Mode_Controller.h"
 #include <stdbool.h>
-
-// 风扇参数定义
-#define Fan_Tension_Coefficient 4.3882e-10 // 拉力系数c_T
-#define LS_Slope 411.1852                  // 10-20占空比线性拟合斜率
-#define LS_Intercept -3370.9               // 10-20占空比线性拟合截距
-#define Turning_point_speed_1 4882         // 20占空比交界转速
-#define MS_Slope 299.1938                  // 20-40占空比线性拟合斜率
-#define MS_Intercept -1101.7               // 20-40占空比线性拟合截距
-#define Turning_point_speed_2 10885        // 40占空比交界转速
-#define HS_Slope 217.8695                  // 40-90占空比线性拟合斜率
-#define HS_Intercept 2170.9                // 40-90占空比线性拟合截距
-
-#define MAX_SPEED 22000.0
-#define MAX_SPEED_SQUARE 484000000.0 // 最大转速平方值, 单位为(RPM)^2. 所使用的风扇额定转速为22000RPM
-
-#define NUM_FANS 12  // 风扇数量
-#define NUM_FORCES 6 // 力和力矩分量数
-
-#define LEARNING_RATE 0.1 // 初始学习率
-#define TOLERANCE 1e-7    // 收敛阈值
-#define MAX_ITERATIONS 10 // 最大迭代次数
+#include "config.h"
 
 // 双极值归一化(含安全系数)
-#define FMAX_FORCE 2 * FMAX * 1.1     // 单轴最大推力 (2*FMAX) * 1.1 (N)0.44
-#define FMAX_TORQUE 4 * D *FMAX * 1.1 // 单轴最大力矩 (4*D*FMAX) * 1.1 (N·m)0.0625
+#define FMAX_FORCE 2 * FMAX * 1.1      // 单轴最大推力 (2*FMAX) * 1.1 (N)0.44
+#define FMAX_TORQUE 4 * D * FMAX * 1.1 // 单轴最大力矩 (4*D*FMAX) * 1.1 (N·m)0.0625
 
 extern uint32_t solution_accepted_cnt; // 接受解计数
 
-// 本课题机器人风扇参数, 数据由实验测得
+// 风扇拉力-占空比分段拟合参数
 static const double c_T = Fan_Tension_Coefficient; // 拉力系数, 由于其值较大, 因此(1)的计算使用double以保证精度
 static const float c_R_H = HS_Slope;               //(2)式的计算使用float即可保证足够精度
 static const float ω_b_H = HS_Intercept;

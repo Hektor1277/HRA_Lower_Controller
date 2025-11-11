@@ -2,6 +2,7 @@
 #include "Fan.h" /* 用到安全停机函数 */
 #include "stm32h7xx_hal.h"
 #include "stm32h7xx_hal_iwdg.h"
+#include "serial.h"
 
 TIM_HandleTypeDef htim7;
 IWDG_HandleTypeDef hiwdg;

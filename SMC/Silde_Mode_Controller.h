@@ -1,30 +1,8 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 #include "sys.h"
+#include "config.h"
 // #include "arm_math.h" // 引入CMSIS-DSP库
-
-// 机器人物理参数
-#define MASS 2.23     // 机器人质量 (kg)
-#define IXX 0.010049  // x轴惯性矩 (kg·m²)
-#define IYY 0.0099573 // y轴惯性矩 (kg·m²)
-#define IZZ 0.0100827 // z轴惯性矩 (kg·m²)
-#define FMAX 2.7      // 单个风扇的最大推力 (N)
-#define D 0.075       // 风扇到中心的距离 (m)
-
-// 滑模控制参数
-#define epsilon_x 1.5 // 位置控制滑模面增益
-#define epsilon_y 0.9
-#define epsilon_z 1.0
-
-#define epsilon_phi 5.0 // 姿态控制滑模面增益
-#define epsilon_theta 5.0
-#define epsilon_psi 5.0
-
-#define p_c 5.0 // 位置控制增益
-#define a_c 10.0
-
-#define p_delta 0.5 // 位置饱和函数范围参数
-#define a_delta 1.0 // 姿态饱和函数范围参数
 
 // 定义控制器输入结构体，包括期望和实际值
 typedef struct

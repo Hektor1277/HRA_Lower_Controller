@@ -115,6 +115,7 @@
                 "d:\\GNC\\HRA_Lower_Controller\\HARDWARE\\Fan",
                 "d:\\GNC\\HRA_Lower_Controller\\HARDWARE\\PGD",
                 "d:\\GNC\\HRA_Lower_Controller\\HARDWARE\\WDG",
+                "d:\\GNC\\HRA_Lower_Controller\\SYSTEM\\config",
                 "E:\\Keil_v5\\ARM\\ARMCC\\include",
                 "E:\\Keil_v5\\ARM\\ARMCC\\include\\rw",
                 "d:\\GNC\\HRA_Lower_Controller\\HALLIB\\STM32H7xx_HAL_Driver\\Src"

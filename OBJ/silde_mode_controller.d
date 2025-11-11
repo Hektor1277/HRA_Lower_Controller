@@ -93,7 +93,8 @@
 ..\obj\silde_mode_controller.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h
 ..\obj\silde_mode_controller.o: ..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h
 ..\obj\silde_mode_controller.o: ..\CORE\core_cm7.h
-..\obj\silde_mode_controller.o: ..\HARDWARE\Fan\Fan.h
+..\obj\silde_mode_controller.o: ..\SYSTEM\config\config.h
 ..\obj\silde_mode_controller.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+..\obj\silde_mode_controller.o: ..\HARDWARE\Fan\Fan.h
 ..\obj\silde_mode_controller.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\silde_mode_controller.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

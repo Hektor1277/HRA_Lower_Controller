@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "sys.h"
+#include "config.h"
 // #include "arm_math.h" // 引入 CMSIS-DSP 库
 
 // 定义控制器输入输出, 风扇转速和占空比结构体
@@ -21,6 +22,8 @@ static float epsilon_x_f, epsilon_y_f, epsilon_z_f;
 static float epsilon_phi_f, epsilon_theta_f, epsilon_psi_f;
 static float p_c_f, a_c_f, p_delta_f, a_delta_f;
 
+bool current_robot_config = CURRENT_CONFIGURATION;
+
 // 位置滑模控制器实现
 void Position_Controller(const ControllerInput *input, ControllerOutput *output)
 {
@@ -29,13 +32,31 @@ void Position_Controller(const ControllerInput *input, ControllerOutput *output)
     float pyd = input->desired_position[1], dpyd = input->desired_velocity[1], ddpyd = input->desired_acceleration[1];
     float pzd = input->desired_position[2], dpzd = input->desired_velocity[2], ddpzd = input->desired_acceleration[2];
 
+    // if (current_robot_config == 0) // 机器人构型为地面实验（3DOF）时
+    // {
+    //     // 将z轴期望位置、速度、加速度设为0
+    //     pzd = 0, dpzd = 0, ddpzd = 0;
+    // }
+
     float px = input->position[0], dpx = input->velocity[0]; // 实际位置、速度
     float py = input->position[1], dpy = input->velocity[1];
     float pz = input->position[2], dpz = input->velocity[2];
 
+    // if (current_robot_config == 0) // 机器人构型为地面实验（3DOF）时
+    // {
+    //     // 将z轴实际位置、速度设为0
+    //     pz = 0, dpz = 0;
+    // }
+
     float phi = input->angles[0]; // 实际角度
     float theta = input->angles[1];
     float psi = input->angles[2];
+
+    // if (current_robot_config == 0) // 机器人构型为地面实验（3DOF）时
+    // {
+    //     // 将phi, theta设为0
+    //     phi = 0, theta = 0;
+    // }
 
     // 计算位置和速度误差
     float e_x = pxd - px, de_x = dpxd - dpx;
@@ -69,6 +90,11 @@ void Position_Controller(const ControllerInput *input, ControllerOutput *output)
     output->thrust[0] = custom_fmin(custom_fmax(F_bd[0], -2 * fmax_f), 2 * fmax_f);
     output->thrust[1] = custom_fmin(custom_fmax(F_bd[1], -2 * fmax_f), 2 * fmax_f);
     output->thrust[2] = custom_fmin(custom_fmax(F_bd[2], -2 * fmax_f), 2 * fmax_f);
+
+    if (current_robot_config == 0) // 机器人构型为地面实验（3DOF）时
+    {
+        output->thrust[2] = 0; // 限制 F_zbd 为0
+    }
 }
 
 // 姿态滑模控制器实现
@@ -79,9 +105,23 @@ void Attitude_Controller(const ControllerInput *input, ControllerOutput *output)
     float thetad = input->desired_angles[1], dthetad = input->desired_angular_velocity[1], ddthetad = input->desired_angular_acceleration[1];
     float psid = input->desired_angles[2], dpsid = input->desired_angular_velocity[2], ddpsid = input->desired_angular_acceleration[2];
 
+    // if (current_robot_config == 0) // 机器人构型为地面实验（3DOF）时
+    // {
+    //     // 将期望phi, theta设为0
+    //     phid = 0, dphid = 0, ddphid = 0;
+    //     thetad = 0, dthetad = 0, ddthetad = 0;
+    // }
+
     float phi = input->angles[0], dphi = input->angular_velocity[0]; // 实际角度、角速度
     float theta = input->angles[1], dtheta = input->angular_velocity[1];
     float psi = input->angles[2], dpsi = input->angular_velocity[2];
+
+    // if (current_robot_config == 0) // 机器人构型为地面实验（3DOF）时
+    // {
+    //     // 将实际phi, theta设为0
+    //     phi = 0, dphi = 0;
+    //     theta = 0, dtheta = 0;
+    // }
 
     // 计算姿态角度和角速度误差
     float e_phi = phid - phi, de_phi = dphid - dphi;
@@ -103,6 +143,12 @@ void Attitude_Controller(const ControllerInput *input, ControllerOutput *output)
     output->torque[0] = custom_fmin(custom_fmax(T_phi, -4 * fmax_f * d_f), 4 * fmax_f * d_f);   // 限制 T_xbd
     output->torque[1] = custom_fmin(custom_fmax(T_theta, -4 * fmax_f * d_f), 4 * fmax_f * d_f); // 限制 T_ybd
     output->torque[2] = custom_fmin(custom_fmax(T_psi, -4 * fmax_f * d_f), 4 * fmax_f * d_f);   // 限制 T_zbd
+
+    if (current_robot_config == 0) // 机器人构型为地面实验（3DOF）时
+    {
+        output->torque[0] = 0; // 限制 T_xbd为0
+        output->torque[1] = 0; // 限制 T_ybd为0
+    }
 }
 
 // 初始化常量为浮点数

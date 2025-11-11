@@ -96,6 +96,7 @@
 ..\obj\protocol.o: ..\SMC\Silde_Mode_Controller.h
 ..\obj\protocol.o: ..\SYSTEM\sys\sys.h
 ..\obj\protocol.o: ..\CORE\core_cm7.h
+..\obj\protocol.o: ..\SYSTEM\config\config.h
 ..\obj\protocol.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\obj\protocol.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\protocol.o: ..\SYSTEM\serial\serial.h
