@@ -101,8 +101,8 @@
 ..\obj\protocol.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\protocol.o: ..\SYSTEM\serial\serial.h
 ..\obj\protocol.o: ..\CORE\core_cm7.h
-..\obj\protocol.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 ..\obj\protocol.o: ..\HARDWARE\Fan\Fan.h
+..\obj\protocol.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 ..\obj\protocol.o: ..\HARDWARE\TIMER\timer.h
 ..\obj\protocol.o: ..\HARDWARE\PGD\PGD.h
 ..\obj\protocol.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

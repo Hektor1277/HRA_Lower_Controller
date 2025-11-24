@@ -1,6 +1,6 @@
 Dependencies for Project 'HRA_Lower_Controller', Target 'HRA_Lower_Controller': (DO NOT MODIFY !)
 CompilerVersion: 5060750::V5.06 update 6 (build 750)::.\ARMCC
-F (.\main.c)(0x6911A625)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\protocol -I ..\SYSTEM\serial -I ..\SYSTEM\ringbuf -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD -I ..\HARDWARE\WDG -I ..\SYSTEM\config-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\4.1.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="542" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\main.o --omf_browse ..\obj\main.crf --depend ..\obj\main.d)
+F (.\main.c)(0x692423FC)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\protocol -I ..\SYSTEM\serial -I ..\SYSTEM\ringbuf -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD -I ..\HARDWARE\WDG -I ..\SYSTEM\config-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\4.1.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="542" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\main.o --omf_browse ..\obj\main.crf --depend ..\obj\main.d)
 I (..\SYSTEM\sys\sys.h)(0x689D9B1E)
 I (..\USER\stm32h7xx.h)(0x689D9B1E)
 I (..\USER\stm32h743xx.h)(0x689D9B1E)
@@ -94,17 +94,17 @@ I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x689D9B1D)
 I (main.h)(0x689D9B1E)
 I (..\HARDWARE\TIMER\timer.h)(0x689D9B1D)
-I (..\SYSTEM\serial\serial.h)(0x691198D0)
+I (..\SYSTEM\serial\serial.h)(0x69241FDD)
+I (..\HARDWARE\Fan\Fan.h)(0x692421F8)
+I (..\SMC\Silde_Mode_Controller.h)(0x6911995A)
+I (..\SYSTEM\config\config.h)(0x6923CC6C)
 I (E:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599ECD2E)
 I (E:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x599ECD2A)
 I (E:\Keil_v5\ARM\ARMCC\include\string.h)(0x599ECD2C)
 I (E:\Keil_v5\ARM\ARMCC\include\math.h)(0x599ECD2E)
-I (..\SYSTEM\config\config.h)(0x69129FE5)
-I (..\SMC\Silde_Mode_Controller.h)(0x6911995A)
 I (..\SYSTEM\protocol\protocol.h)(0x6911A544)
 I (..\SYSTEM\ringbuf\ringbuf.h)(0x689D9B1E)
 I (..\SYSTEM\delay\delay.h)(0x689D9B1E)
-I (..\HARDWARE\Fan\Fan.h)(0x6911A25F)
 I (..\HARDWARE\WDG\WDG.h)(0x689D9B1D)
 F (.\stm32h7xx_it.c)(0x689D9B1E)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\protocol -I ..\SYSTEM\serial -I ..\SYSTEM\ringbuf -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD -I ..\HARDWARE\WDG -I ..\SYSTEM\config-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\4.1.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="542" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\stm32h7xx_it.o --omf_browse ..\obj\stm32h7xx_it.crf --depend ..\obj\stm32h7xx_it.d)
 I (stm32h7xx_it.h)(0x689D9B1E)
@@ -479,9 +479,9 @@ I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x689D9B1D)
-I (..\SYSTEM\config\config.h)(0x69129FE5)
+I (..\SYSTEM\config\config.h)(0x6923CC6C)
 I (E:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599ECD2E)
-I (..\HARDWARE\Fan\Fan.h)(0x6911A25F)
+I (..\HARDWARE\Fan\Fan.h)(0x692421F8)
 I (E:\Keil_v5\ARM\ARMCC\include\math.h)(0x599ECD2E)
 I (E:\Keil_v5\ARM\ARMCC\include\string.h)(0x599ECD2C)
 F (..\SYSTEM\delay\delay.c)(0x689D9B1E)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\protocol -I ..\SYSTEM\serial -I ..\SYSTEM\ringbuf -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD -I ..\HARDWARE\WDG -I ..\SYSTEM\config-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\4.1.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="542" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\delay.o --omf_browse ..\obj\delay.crf --depend ..\obj\delay.d)
@@ -669,14 +669,16 @@ I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x689D9B1D)
-I (..\SYSTEM\serial\serial.h)(0x691198D0)
+I (..\SYSTEM\serial\serial.h)(0x69241FDD)
+I (..\HARDWARE\Fan\Fan.h)(0x692421F8)
+I (..\SMC\Silde_Mode_Controller.h)(0x6911995A)
+I (..\SYSTEM\config\config.h)(0x6923CC6C)
 I (E:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599ECD2E)
 I (E:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x599ECD2A)
 I (E:\Keil_v5\ARM\ARMCC\include\string.h)(0x599ECD2C)
 I (E:\Keil_v5\ARM\ARMCC\include\math.h)(0x599ECD2E)
-I (..\SYSTEM\config\config.h)(0x69129FE5)
-F (..\SYSTEM\serial\serial.c)(0x6911A594)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\protocol -I ..\SYSTEM\serial -I ..\SYSTEM\ringbuf -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD -I ..\HARDWARE\WDG -I ..\SYSTEM\config-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\4.1.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="542" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\serial.o --omf_browse ..\obj\serial.crf --depend ..\obj\serial.d)
-I (..\SYSTEM\serial\serial.h)(0x691198D0)
+F (..\SYSTEM\serial\serial.c)(0x692423A7)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\protocol -I ..\SYSTEM\serial -I ..\SYSTEM\ringbuf -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD -I ..\HARDWARE\WDG -I ..\SYSTEM\config-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\4.1.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="542" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\serial.o --omf_browse ..\obj\serial.crf --depend ..\obj\serial.d)
+I (..\SYSTEM\serial\serial.h)(0x69241FDD)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h)(0x689D9B1D)
 I (..\USER\stm32h7xx_hal_conf.h)(0x689D9B1E)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h)(0x689D9B1D)
@@ -767,15 +769,16 @@ I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x689D9B1D)
+I (..\HARDWARE\Fan\Fan.h)(0x692421F8)
+I (..\SYSTEM\sys\sys.h)(0x689D9B1E)
+I (..\SMC\Silde_Mode_Controller.h)(0x6911995A)
+I (..\SYSTEM\config\config.h)(0x6923CC6C)
 I (E:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599ECD2E)
 I (E:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x599ECD2A)
 I (E:\Keil_v5\ARM\ARMCC\include\string.h)(0x599ECD2C)
 I (E:\Keil_v5\ARM\ARMCC\include\math.h)(0x599ECD2E)
-I (..\SYSTEM\config\config.h)(0x69129FE5)
 I (..\SYSTEM\protocol\protocol.h)(0x6911A544)
 I (..\SYSTEM\ringbuf\ringbuf.h)(0x689D9B1E)
-I (..\SMC\Silde_Mode_Controller.h)(0x6911995A)
-I (..\SYSTEM\sys\sys.h)(0x689D9B1E)
 F (..\SYSTEM\protocol\protocol.c)(0x69129FAB)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\protocol -I ..\SYSTEM\serial -I ..\SYSTEM\ringbuf -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD -I ..\HARDWARE\WDG -I ..\SYSTEM\config-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\4.1.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="542" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\protocol.o --omf_browse ..\obj\protocol.crf --depend ..\obj\protocol.d)
 I (..\SYSTEM\protocol\protocol.h)(0x6911A544)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h)(0x689D9B1D)
@@ -872,12 +875,12 @@ I (..\SYSTEM\ringbuf\ringbuf.h)(0x689D9B1E)
 I (E:\Keil_v5\ARM\ARMCC\include\string.h)(0x599ECD2C)
 I (..\SMC\Silde_Mode_Controller.h)(0x6911995A)
 I (..\SYSTEM\sys\sys.h)(0x689D9B1E)
-I (..\SYSTEM\config\config.h)(0x69129FE5)
+I (..\SYSTEM\config\config.h)(0x6923CC6C)
 I (E:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599ECD2E)
 I (E:\Keil_v5\ARM\ARMCC\include\math.h)(0x599ECD2E)
-I (..\SYSTEM\serial\serial.h)(0x691198D0)
+I (..\SYSTEM\serial\serial.h)(0x69241FDD)
+I (..\HARDWARE\Fan\Fan.h)(0x692421F8)
 I (E:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x599ECD2A)
-I (..\HARDWARE\Fan\Fan.h)(0x6911A25F)
 I (..\HARDWARE\TIMER\timer.h)(0x689D9B1D)
 I (..\HARDWARE\PGD\PGD.h)(0x6911A47D)
 I (E:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x599ECD2C)
@@ -8167,20 +8170,20 @@ I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x689D9B1D)
-I (..\SYSTEM\serial\serial.h)(0x691198D0)
+I (..\SYSTEM\serial\serial.h)(0x69241FDD)
+I (..\HARDWARE\Fan\Fan.h)(0x692421F8)
+I (..\SMC\Silde_Mode_Controller.h)(0x6911995A)
+I (..\SYSTEM\config\config.h)(0x6923CC6C)
 I (E:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599ECD2E)
 I (E:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x599ECD2A)
 I (E:\Keil_v5\ARM\ARMCC\include\string.h)(0x599ECD2C)
 I (E:\Keil_v5\ARM\ARMCC\include\math.h)(0x599ECD2E)
-I (..\SYSTEM\config\config.h)(0x69129FE5)
-I (..\SMC\Silde_Mode_Controller.h)(0x6911995A)
-I (..\HARDWARE\Fan\Fan.h)(0x6911A25F)
 I (..\HARDWARE\WDG\WDG.h)(0x689D9B1D)
 I (..\HARDWARE\PGD\PGD.h)(0x6911A47D)
 I (E:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x599ECD2C)
 I (E:\Keil_v5\ARM\ARMCC\include\float.h)(0x599ECD2C)
-F (..\HARDWARE\Fan\Fan.c)(0x689D9B1D)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\protocol -I ..\SYSTEM\serial -I ..\SYSTEM\ringbuf -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD -I ..\HARDWARE\WDG -I ..\SYSTEM\config-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\4.1.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="542" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\fan.o --omf_browse ..\obj\fan.crf --depend ..\obj\fan.d)
-I (..\HARDWARE\Fan\Fan.h)(0x6911A25F)
+F (..\HARDWARE\Fan\Fan.c)(0x6924221C)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\protocol -I ..\SYSTEM\serial -I ..\SYSTEM\ringbuf -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD -I ..\HARDWARE\WDG -I ..\SYSTEM\config-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\4.1.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="542" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\fan.o --omf_browse ..\obj\fan.crf --depend ..\obj\fan.d)
+I (..\HARDWARE\Fan\Fan.h)(0x692421F8)
 I (..\SYSTEM\sys\sys.h)(0x689D9B1E)
 I (..\USER\stm32h7xx.h)(0x689D9B1E)
 I (..\USER\stm32h743xx.h)(0x689D9B1E)
@@ -8273,10 +8276,10 @@ I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x689D9B1D)
 I (..\SMC\Silde_Mode_Controller.h)(0x6911995A)
-I (..\SYSTEM\config\config.h)(0x69129FE5)
+I (..\SYSTEM\config\config.h)(0x6923CC6C)
 I (E:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599ECD2E)
 I (..\HARDWARE\TIMER\timer.h)(0x689D9B1D)
-I (..\SYSTEM\serial\serial.h)(0x691198D0)
+I (..\SYSTEM\serial\serial.h)(0x69241FDD)
 I (E:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x599ECD2A)
 I (E:\Keil_v5\ARM\ARMCC\include\string.h)(0x599ECD2C)
 I (E:\Keil_v5\ARM\ARMCC\include\math.h)(0x599ECD2E)
@@ -8290,9 +8293,9 @@ I (E:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599ECD2C)
 I (E:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x599ECD2C)
 I (E:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599ECD2E)
 I (E:\Keil_v5\ARM\ARMCC\include\float.h)(0x599ECD2C)
-I (..\SYSTEM\config\config.h)(0x69129FE5)
+I (..\SYSTEM\config\config.h)(0x6923CC6C)
 I (E:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599ECD2E)
-I (..\HARDWARE\Fan\Fan.h)(0x6911A25F)
+I (..\HARDWARE\Fan\Fan.h)(0x692421F8)
 I (..\SYSTEM\sys\sys.h)(0x689D9B1E)
 I (..\USER\stm32h7xx.h)(0x689D9B1E)
 I (..\USER\stm32h743xx.h)(0x689D9B1E)
@@ -8383,7 +8386,7 @@ I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x689D9B1D)
 I (..\SMC\Silde_Mode_Controller.h)(0x6911995A)
-I (..\SYSTEM\serial\serial.h)(0x691198D0)
+I (..\SYSTEM\serial\serial.h)(0x69241FDD)
 I (E:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x599ECD2A)
 I (E:\Keil_v5\ARM\ARMCC\include\string.h)(0x599ECD2C)
 F (..\HARDWARE\WDG\WDG.c)(0x6911A5AA)(--c99 -c --cpu Cortex-M7.fp.dp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\CORE -I ..\USER -I ..\SMC -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\protocol -I ..\SYSTEM\serial -I ..\SYSTEM\ringbuf -I ..\HALLIB\STM32H7xx_HAL_Driver\Inc -I ..\HARDWARE\LED -I ..\HARDWARE\TIMER -I ..\HARDWARE\Fan -I ..\HARDWARE\PGD -I ..\HARDWARE\WDG -I ..\SYSTEM\config-IE:\Keil_v5\ARM\Packs\Keil\STM32H7xx_DFP\4.1.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include-D__UVISION_VERSION="542" -DSTM32H743xx -DUSE_HAL_DRIVER -DSTM32H743xx-o ..\obj\wdg.o --omf_browse ..\obj\wdg.crf --depend ..\obj\wdg.d)
@@ -8478,12 +8481,12 @@ I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h)(0x689D9B1D)
 I (..\HALLIB\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h)(0x689D9B1D)
-I (..\HARDWARE\Fan\Fan.h)(0x6911A25F)
+I (..\HARDWARE\Fan\Fan.h)(0x692421F8)
 I (..\SYSTEM\sys\sys.h)(0x689D9B1E)
 I (..\SMC\Silde_Mode_Controller.h)(0x6911995A)
-I (..\SYSTEM\config\config.h)(0x69129FE5)
+I (..\SYSTEM\config\config.h)(0x6923CC6C)
 I (E:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599ECD2E)
-I (..\SYSTEM\serial\serial.h)(0x691198D0)
+I (..\SYSTEM\serial\serial.h)(0x69241FDD)
 I (E:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x599ECD2A)
 I (E:\Keil_v5\ARM\ARMCC\include\string.h)(0x599ECD2C)
 I (E:\Keil_v5\ARM\ARMCC\include\math.h)(0x599ECD2E)

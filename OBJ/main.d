@@ -96,14 +96,14 @@
 ..\obj\main.o: ..\HARDWARE\TIMER\timer.h
 ..\obj\main.o: ..\SYSTEM\serial\serial.h
 ..\obj\main.o: ..\CORE\core_cm7.h
+..\obj\main.o: ..\HARDWARE\Fan\Fan.h
+..\obj\main.o: ..\SMC\Silde_Mode_Controller.h
+..\obj\main.o: ..\SYSTEM\config\config.h
 ..\obj\main.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\obj\main.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 ..\obj\main.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\main.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
-..\obj\main.o: ..\SYSTEM\config\config.h
-..\obj\main.o: ..\SMC\Silde_Mode_Controller.h
 ..\obj\main.o: ..\SYSTEM\protocol\protocol.h
 ..\obj\main.o: ..\SYSTEM\ringbuf\ringbuf.h
 ..\obj\main.o: ..\SYSTEM\delay\delay.h
-..\obj\main.o: ..\HARDWARE\Fan\Fan.h
 ..\obj\main.o: ..\HARDWARE\WDG\WDG.h

@@ -94,8 +94,10 @@
 ..\obj\sys.o: ..\CORE\core_cm7.h
 ..\obj\sys.o: ..\SYSTEM\serial\serial.h
 ..\obj\sys.o: ..\CORE\core_cm7.h
+..\obj\sys.o: ..\HARDWARE\Fan\Fan.h
+..\obj\sys.o: ..\SMC\Silde_Mode_Controller.h
+..\obj\sys.o: ..\SYSTEM\config\config.h
 ..\obj\sys.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\obj\sys.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 ..\obj\sys.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\sys.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
-..\obj\sys.o: ..\SYSTEM\config\config.h

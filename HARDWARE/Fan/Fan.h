@@ -21,6 +21,10 @@ static const float c_R_L = LS_Slope;
 static const float ω_b_L = LS_Intercept;
 static const double D_val = D;
 
+// 风扇限幅参数
+#define MAX_FAN_Duty_Rate 90 // 最大风扇占空比 (%)
+#define MIN_FAN_Duty_Rate 13 // 最小风扇占空比 (%)
+
 // 定义风扇转速结构体
 typedef struct
 {

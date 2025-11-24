@@ -95,13 +95,13 @@
 ..\obj\timer.o: ..\CORE\core_cm7.h
 ..\obj\timer.o: ..\SYSTEM\serial\serial.h
 ..\obj\timer.o: ..\CORE\core_cm7.h
+..\obj\timer.o: ..\HARDWARE\Fan\Fan.h
+..\obj\timer.o: ..\SMC\Silde_Mode_Controller.h
+..\obj\timer.o: ..\SYSTEM\config\config.h
 ..\obj\timer.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\obj\timer.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 ..\obj\timer.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\timer.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
-..\obj\timer.o: ..\SYSTEM\config\config.h
-..\obj\timer.o: ..\SMC\Silde_Mode_Controller.h
-..\obj\timer.o: ..\HARDWARE\Fan\Fan.h
 ..\obj\timer.o: ..\HARDWARE\WDG\WDG.h
 ..\obj\timer.o: ..\HARDWARE\PGD\PGD.h
 ..\obj\timer.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

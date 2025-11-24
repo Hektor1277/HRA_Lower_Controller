@@ -197,7 +197,7 @@ float Calculate_Single_Duty(float fan_speed)
         duty = (fan_speed - ω_b_H) / c_R_H;
     }
 
-    return (float)(custom_fmin(90, custom_fmax(10, duty)));
+    return (float)(custom_fmin(MAX_FAN_Duty_Rate, custom_fmax(MIN_FAN_Duty_Rate, duty)));
 }
 
 void Calculate_Duty_Rate(FanSpeed *fan_speed, FanControl *duty_rate)
@@ -217,7 +217,7 @@ void Calculate_Duty_Rate(FanSpeed *fan_speed, FanControl *duty_rate)
     duty_rate->control_RZ_n = Calculate_Single_Duty(fan_speed->omega_RZ_n);
 }
 
-// 控制风扇占空比，接收 12 个风扇的占空比(10-90%), 并输出相应PWM波
+// 控制风扇占空比，接收 12 个风扇的占空比(MIN_FAN_Duty_Rate%-MAX_FAN_Duty_Rate%), 并输出相应PWM波
 // PWM输出引脚分配: 用于输出PWM信号的引脚按风扇模块分布于P1P2, 并按核心模块朝向进行分配, 当前引脚分配为:
 // PI5, 6, 7为左上模块(编号1, LX+, FY+, LZ+) PB7, 8, 9为左下模块(编号3, LX-, AY+, LZ-); PB0, 1和PA7为右上模块(编号2, RX-, AY-, RZ+)PA6和PH10, 11为右下模块(编号4, RX+, FY-, RZ-)
 // 结合定时器引脚分配: 定时器3为PA6, 7和PB0, 1; 定时器4为PB7, 8, 9; 定时器5为PH10, 11; 定时器8为PI5, 6, 7

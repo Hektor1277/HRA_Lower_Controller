@@ -40,6 +40,14 @@ static volatile bool dma_inflight = false; // DMA “在飞” 互斥锁，严�
 static volatile uint16_t prev_ndtr = RX2_DMA_SZ; /* 上一次进入 ISR 时的 NDTR */
 static uint16_t dma_tail = 0;                    /* 环形读取尾指针（0~RX2_DMA_SZ-1） */
 
+/* 调试控制台缓冲区 */
+#if (OPERATING_MODE == 0)
+#define DBG_CMD_MAX_LEN 64
+static uint8_t dbg_rx_buf[DBG_CMD_MAX_LEN];
+static uint16_t dbg_rx_idx = 0;
+static volatile bool dbg_cmd_ready = false;
+#endif
+
 /* =========================================================
  * 2. 调试口 TX 环形 FIFO  (2^n 大小)
  * =======================================================*/
@@ -424,7 +432,30 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *h)
     {
         /* 简单 PC->调试口的回显：也走 FIFO+DMA */
         uint8_t ch = rx1_byte;
-        HAL_UART_Receive_IT(&huart1, &rx1_byte, 1);
+        HAL_UART_Receive_IT(&huart1, &rx1_byte, 1); // 重新开启接收
+
+#if (OPERATING_MODE == 0)
+        // 调试指令采集
+        if (!dbg_cmd_ready) // 如果上一条指令还没处理完，先暂不接收新指令防止覆盖
+        {
+            if (ch == '\n' || ch == '\r')
+            {
+                if (dbg_rx_idx > 0) // 只有缓冲区有数据才置标志位
+                {
+                    dbg_cmd_ready = true;
+                }
+            }
+            else if (dbg_rx_idx < DBG_CMD_MAX_LEN - 1)
+            {
+                dbg_rx_buf[dbg_rx_idx++] = ch;
+            }
+            else
+            {
+                // 缓冲区溢出，重置
+                dbg_rx_idx = 0;
+            }
+        }
+#endif
 
 #if USE_DMA
         if (fifo_put_multi(&ch, 1))
@@ -478,3 +509,93 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
     }
 #endif
 }
+
+/* =========================================================
+ * 9. 调试命令轮询处理函数
+ * =======================================================*/
+#if (OPERATING_MODE == 0) // 仅在调试模式编译
+/* 内部辅助：解析并执行指令 */
+static void Process_Debug_Command(char *cmd_str)
+{
+    int id = -1;
+    int duty_int = 0;
+
+    // 解析格式: #FAN:id,duty
+    // 示例: #FAN:0,50  或 #FAN:99,10
+    if (sscanf(cmd_str, "#FAN:%d,%d", &id, &duty_int) == 2)
+    {
+        // 1. 安全限幅 (MIN_FAN_Duty_Rate% - MAX_FAN_Duty_Rate%)
+        float duty = (float)duty_int;
+        if (duty < MIN_FAN_Duty_Rate)
+            duty = MIN_FAN_Duty_Rate;
+        if (duty > MAX_FAN_Duty_Rate)
+            duty = MAX_FAN_Duty_Rate;
+
+        // 2. 映射 ID 到 FanControl 结构体
+        // ID 映射表 (参考 Set_Fan_PWM 中的顺序)
+        // 0:LX_p, 1:LX_n, 2:RX_p, 3:RX_n, 4:FY_p, 5:FY_n
+        // 6:AY_p, 7:AY_n, 8:LZ_p, 9:LZ_n, 10:RZ_p, 11:RZ_n
+
+        bool update_all = (id == 99);
+        bool valid_id = true;
+
+        if (update_all || id == 0)
+            Fan_Control_duty_rate.control_LX_p = duty;
+        if (update_all || id == 1)
+            Fan_Control_duty_rate.control_LX_n = duty;
+        if (update_all || id == 2)
+            Fan_Control_duty_rate.control_RX_p = duty;
+        if (update_all || id == 3)
+            Fan_Control_duty_rate.control_RX_n = duty;
+        if (update_all || id == 4)
+            Fan_Control_duty_rate.control_FY_p = duty;
+        if (update_all || id == 5)
+            Fan_Control_duty_rate.control_FY_n = duty;
+        if (update_all || id == 6)
+            Fan_Control_duty_rate.control_AY_p = duty;
+        if (update_all || id == 7)
+            Fan_Control_duty_rate.control_AY_n = duty;
+        if (update_all || id == 8)
+            Fan_Control_duty_rate.control_LZ_p = duty;
+        if (update_all || id == 9)
+            Fan_Control_duty_rate.control_LZ_n = duty;
+        if (update_all || id == 10)
+            Fan_Control_duty_rate.control_RZ_p = duty;
+        if (update_all || id == 11)
+            Fan_Control_duty_rate.control_RZ_n = duty;
+
+        if (!update_all && (id < 0 || id > 11))
+            valid_id = false;
+
+        // 3. 应用 PWM 到底层硬件
+        if (valid_id)
+        {
+            Set_Fan_PWM(&Fan_Control_duty_rate);
+            USART_SendFormatted_DMA("\r\n[CMD] Set Fan ID:%d -> Duty:%.1f%% OK\r\n", id, duty);
+        }
+        else
+        {
+            USART_SendFormatted_DMA("\r\n[CMD] Invalid Fan ID (0-11, 99=All)\r\n");
+        }
+    }
+    else
+    {
+        USART_SendFormatted_DMA("\r\n[CMD] Syntax Error. Use: #FAN:id,duty\r\n");
+    }
+}
+
+/* 公共接口：在 main 中轮询 */
+void Debug_Console_Poll(void)
+{
+    if (dbg_cmd_ready)
+    {
+        // 确保字符串以 null 结尾
+        dbg_rx_buf[dbg_rx_idx] = '\0';
+        Process_Debug_Command((char *)dbg_rx_buf);
+
+        // 清除状态，准备接收下一条
+        dbg_rx_idx = 0;
+        dbg_cmd_ready = false;
+    }
+}
+#endif

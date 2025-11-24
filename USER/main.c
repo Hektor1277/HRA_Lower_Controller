@@ -78,6 +78,11 @@ int main(void)
 #if ENABLE_USART
         proto_poll(); // 解析并更新 ctrl_input
 
+#if (OPERATING_MODE == 0) // 仅在调试模式下编译
+        // 调试控制台轮询
+        Debug_Console_Poll();
+#endif
+
 #if OPERATING_MODE
         IWDG_Kick();    // 喂硬件看门狗
         SoftWDG_Kick(); // 喂软件看门狗

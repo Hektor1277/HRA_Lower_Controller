@@ -16,6 +16,7 @@
 #include "stm32h7xx_hal_def.h"
 #include "stm32h7xx_hal_dma.h"
 #include "core_cm7.h"
+#include "Fan.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -67,6 +68,9 @@ void MX_USART_Init(uint32_t baud1, uint32_t baud2);
 void USART_SendFormatted(UART_HandleTypeDef *huart, const char *format, ...);      // printf-style短文本发送(阻塞)
 void USART_SendFormatted_DMA(const char *fmt, ...);                                // 短文本发送(DMA, 非阻塞)
 size_t uart_write_dma(UART_HandleTypeDef *huart, const uint8_t *data, size_t len); // 块数据发送(DMA, 非阻塞)
+#if (OPERATING_MODE == 0)                                                          // 仅在调试模式下有效
+void Debug_Console_Poll(void);                                                     // 调试命令轮询处理函数
+#endif
 //================ 函数声明 ================
 
 //================ 内联函数 ================
