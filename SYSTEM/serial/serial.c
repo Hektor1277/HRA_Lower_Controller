@@ -435,7 +435,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *h)
         HAL_UART_Receive_IT(&huart1, &rx1_byte, 1); // 重新开启接收
 
 #if (OPERATING_MODE == 0)
-        // 调试指令采集
+        /* -----------------------------------------------------------
+         * 功能 A: 文本指令解析 (#FAN:...), 单个驱动器直接控制
+         * ----------------------------------------------------------- */
         if (!dbg_cmd_ready) // 如果上一条指令还没处理完，先暂不接收新指令防止覆盖
         {
             if (ch == '\n' || ch == '\r')
@@ -455,7 +457,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *h)
                 dbg_rx_idx = 0;
             }
         }
-#endif
+
+        /* -----------------------------------------------------------
+         * 功能 B: 将字节注入协议层环形缓冲区
+         * -----------------------------------------------------------
+         * 1. proto_poll() 在主循环里时刻监视 rb (RingBuffer)。
+         * 2. 如果我们通过串口1发送了标准的 90字节 数据帧 (0xAA 0xBB...)，
+         *    这里会逐字节推入 rb。
+         * 3. 当 rb 攒够一帧后，proto_poll 就会成功提取，并触发
+         *    Position_Controller -> PGD -> Set_Fan_PWM 的全流程。
+         * ----------------------------------------------------------- */
+        proto_ringbuf_push(&ch, 1);
+
+#endif // OPERATING_MODE == 0
 
 #if USE_DMA
         if (fifo_put_multi(&ch, 1))

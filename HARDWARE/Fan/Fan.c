@@ -239,7 +239,7 @@ void Set_Fan_PWM(FanControl *duty_rate)
     TIM_SetCompare(&htim4, TIM_CHANNEL_4, duty_rate->control_LZ_n); // 定时器4通道4为PB9, 对应左下模块的LZ-
 
     // 设置右下模块(编号4, RX+, FY-, RZ-, 对应PA6和PH10, 11)三个通道的占空比
-    TIM_SetCompare(&htim3, TIM_CHANNEL_1, duty_rate->control_RX_p); // 定时器3通道1为PA6, 对应右下模块的RX+
+    TIM_SetCompare(&htim5, TIM_CHANNEL_2, duty_rate->control_RX_p); // 定时器5通道2为PH11, 对应右下模块的RX+
     TIM_SetCompare(&htim5, TIM_CHANNEL_1, duty_rate->control_FY_n); // 定时器5通道1为PH10, 对应右下模块的FY-
-    TIM_SetCompare(&htim5, TIM_CHANNEL_2, duty_rate->control_RZ_n); // 定时器5通道2为PH11, 对应右下模块的RZ-
+    TIM_SetCompare(&htim3, TIM_CHANNEL_1, duty_rate->control_RZ_n); // 定时器3通道1为PA6, 对应右下模块的RZ-
 }
