@@ -89,8 +89,9 @@ int main(void)
         if (ctrl_buf[ctrl_r].valid)
         {
             ctrl_buf[ctrl_r].valid = false;
-            ControllerOutput local_out = ctrl_buf[ctrl_r].data; // 复制到局部
-            Calculate_Fan_Speed(&local_out, &Fan_desire_Speed); // 无告警调用
+            ControllerOutput local_out = ctrl_buf[ctrl_r].data;                          // 复制到局部
+            Fan_Rotation_Control(&local_out, &Fan_desire_Speed, &Fan_Control_duty_rate); // 调用底层风扇控制函数，根据控制输出计算风扇转速并输出相应PWM信号
+            // Calculate_Fan_Speed(&local_out, &Fan_desire_Speed); // 无告警调用
             ctrl_r ^= 1u;
         }
         if (dbg_flag) // 触发定时器中断

@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "config.h": "c",
+        "silde_mode_controller.h": "c"
+    }
+}
